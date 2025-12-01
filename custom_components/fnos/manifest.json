@@ -1,0 +1,17 @@
+{
+  "domain": "fnos",
+  "name": "飞牛fnOS",
+  "version": "0.1.0",
+  "codeowners": [
+    "@Timandes"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://www.home-assistant.io/integrations/fnos",
+  "homekit": {},
+  "iot_class": "local_polling",
+  "quality_scale": "bronze",
+  "requirements": ["fnos>=0.4.0"],
+  "ssdp": [],
+  "zeroconf": []
+}
