@@ -11,7 +11,7 @@
   "homekit": {},
   "iot_class": "local_polling",
   "quality_scale": "bronze",
-  "requirements": ["fnos>=0.4.0"],
+  "requirements": ["fnos>=0.9.0"],
   "ssdp": [],
   "zeroconf": []
 }

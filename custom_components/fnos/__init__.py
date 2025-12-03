@@ -63,9 +63,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: New_NameConfigEntry) -> 
     
     # 连接到服务器（必须指定endpoint）
     await client.connect(entry.data.get(CONF_HOST))
-    
-    # 等待连接建立
-    await asyncio.sleep(3)
 
     # 使用命令行参数中的用户名和密码
     result = await client.login(entry.data.get(CONF_USERNAME), entry.data.get(CONF_PASSWORD))

@@ -1,0 +1,43 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "host": "Host:Port",
+          "username": "User Name",
+          "password": "Password"
+        },
+        "data_description": {
+          "host": "E.G: 192.168.31.111:5666"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "uptime": {
+        "name": "Uptime"
+      },
+      "cpu_usage": {
+        "name": "CPU Usage"
+      },
+      "memory_usage": {
+        "name": "Memory Usage"
+      },
+      "disk_usage": {
+        "name": "Disk Usage"
+      },
+      "cpu_temperature": {
+        "name": "CPU Temperature"
+      }
+    }
+  }
+}

@@ -62,6 +62,7 @@ class FnosCoordinator(DataUpdateCoordinator):
 
         machine_id_resp = await self.system_info.get_machine_id()
         machine_id = machine_id_resp.get('data').get('machineId')
+        self.machine_id = machine_id
 
         host_name_resp = await self.system_info.get_host_name()
         # hostName实际上“设置”页可修改的“设备名称”
@@ -74,7 +75,7 @@ class FnosCoordinator(DataUpdateCoordinator):
         self.device_id = machine_id
         self.device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{machine_id}")},
-            name=f"{self.config_entry.title} ({host_name})",
+            name=f"{host_name}",
             manufacturer="fnOS",
             model=cpu_name,
             sw_version=trim_version,

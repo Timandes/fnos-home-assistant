@@ -10,6 +10,8 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorEntityDescription,
     SensorStateClass,
+    UndefinedType,
+    cached_property,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -68,8 +70,8 @@ SENSOR_TYPES: tuple[FnosSensorEntityDescription, ...] = (
         value_fn=lambda data: data.get("memory").get("mem").get("used") / data.get("memory").get("mem").get("total") * 100.0,
     ),
     FnosSensorEntityDescription(
-        key="temperature",
-        translation_key="temperature",
+        key="cpu_temperature",
+        translation_key="cpu_temperature",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         state_class=SensorStateClass.MEASUREMENT,
         device_class=SensorDeviceClass.TEMPERATURE,
@@ -118,12 +120,17 @@ class FnosSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self.entity_description = description
-        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{description.key}"
+        self._attr_unique_id = f"{coordinator.machine_id}_{description.key}"
 
         # Set device info
         #self._device_id = coordinator.device_id
         self._attr_device_info = coordinator.device_info
 
+    @cached_property
+    def name(self) -> str | UndefinedType | None:
+        result = super().name
+        _LOGGER.debug("Entity name result: %s", result)
+        return result
 
     @property
     def native_value(self) -> StateType:
