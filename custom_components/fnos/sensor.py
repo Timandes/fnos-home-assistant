@@ -30,7 +30,7 @@ from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers.device_registry import DeviceInfo
 
-from .const import DOMAIN
+from .const import CONF_VOLUMES, DOMAIN
 from . import FnosData
 from .coordinator import FnosCoordinator
 
@@ -77,6 +77,7 @@ SENSOR_TYPES: tuple[FnosSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         value_fn=lambda data: data.get('cpu').get("cpu").get('temp')[0],
     ),
+    # Deprecated by volume_percentage_used
     FnosSensorEntityDescription(
         key="disk_usage",
         translation_key="disk_usage",
@@ -84,6 +85,36 @@ SENSOR_TYPES: tuple[FnosSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         device_class=SensorDeviceClass.POWER_FACTOR,
         value_fn=lambda data: max((item["fssize"] - item["frsize"]) / item["fssize"] * 100.0 for item in data.get("store").get("array"))
+    ),
+)
+
+STORAGE_VOL_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
+    FnosSensorEntityDescription(
+        key="volume_size_used",
+        translation_key="volume_size_used",
+        native_unit_of_measurement=UnitOfInformation.BYTES,
+        suggested_unit_of_measurement=UnitOfInformation.TERABYTES,
+        suggested_display_precision=2,
+        device_class=SensorDeviceClass.DATA_SIZE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("fssize") - data.get("frsize")
+    ),
+    FnosSensorEntityDescription(
+        key="volume_size_total",
+        translation_key="volume_size_total",
+        native_unit_of_measurement=UnitOfInformation.BYTES,
+        suggested_unit_of_measurement=UnitOfInformation.TERABYTES,
+        suggested_display_precision=2,
+        device_class=SensorDeviceClass.DATA_SIZE,
+        entity_registry_enabled_default=False,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.get("fssize")
+    ),
+    FnosSensorEntityDescription(
+        key="volume_percentage_used",
+        translation_key="volume_percentage_used",
+        native_unit_of_measurement=PERCENTAGE,
+        value_fn=lambda data: (data["fssize"] - data["frsize"]) / data["fssize"] * 100.0
     ),
 )
 
@@ -103,11 +134,21 @@ async def async_setup_entry(
         FnosSensorEntity(coordinator, description) for description in SENSOR_TYPES
     ]
 
+        # Handle all volumes
+    if coordinator.data.get("store").get("array"):
+        entities.extend(
+            [
+                FnosVolumeSensorEntity(coordinator, description, volume)
+                for volume in entry.data.get(CONF_VOLUMES, coordinator.data.get("store").get("array"))
+                for description in STORAGE_VOL_SENSORS
+            ]
+        )
+
     async_add_entities(entities)
 
 
 class FnosSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
-    """Representation of a F&OS sensor."""
+    """Representation of a fnOS sensor."""
 
     entity_description: FnosSensorEntityDescription
     _attr_has_entity_name = True
@@ -126,13 +167,51 @@ class FnosSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         #self._device_id = coordinator.device_id
         self._attr_device_info = coordinator.device_info
 
-    @cached_property
-    def name(self) -> str | UndefinedType | None:
-        result = super().name
-        _LOGGER.debug("Entity name result: %s", result)
-        return result
-
     @property
     def native_value(self) -> StateType:
         """Return the state of the sensor."""
         return self.entity_description.value_fn(self.coordinator.data)
+
+
+class FnosVolumeSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
+    """Representation of a volume sensor in fnOS."""
+
+    entity_description: FnosSensorEntityDescription
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator: FnosCoordinator,
+        description: FnosSensorEntityDescription,
+        volume
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator)
+        self.volume_name = volume.get("name")
+        volume_uuid = volume.get("uuid")
+        trim_version = self.coordinator.data['host_name'].get('trimVersion')
+
+        self.entity_description = description
+        self._attr_unique_id = f"{coordinator.machine_id}_{volume_uuid}_{description.key}"
+
+        # Set device info
+        #self._device_id = coordinator.device_id
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"{coordinator.machine_id}_{volume_uuid}")},
+            name=self.volume_name.replace("_", " ").capitalize(),
+            manufacturer="fnOS",
+            model="Volume",
+            sw_version=trim_version,
+            via_device=(DOMAIN, coordinator.machine_id),
+        )
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the state of the sensor."""
+
+        data = {}
+        for item in self.coordinator.data.get("store").get("array"):
+            if item.get("name") == self.volume_name:
+                data = item
+
+        return self.entity_description.value_fn(data)

@@ -59,15 +59,16 @@ class FnosCoordinator(DataUpdateCoordinator):
         """
         job_id = self._generate_job_id()
         _LOGGER.warn(f"[{self.config_entry.title}] [{job_id}] _async_setup called")
+        
+        self.data = await self._async_retrieve_from_fnos(job_id)
 
         machine_id_resp = await self.system_info.get_machine_id()
         machine_id = machine_id_resp.get('data').get('machineId')
         self.machine_id = machine_id
 
-        host_name_resp = await self.system_info.get_host_name()
         # hostName实际上“设置”页可修改的“设备名称”
-        host_name = host_name_resp.get('data').get('hostName')
-        trim_version = host_name_resp.get('data').get('trimVersion')
+        host_name = self.data.get("host_name").get('hostName')
+        trim_version = self.data.get("host_name").get('trimVersion')
 
         hardware_info_resp = await self.system_info.get_hardware_info()
         cpu_name = hardware_info_resp.get('data').get('cpu').get('name')
@@ -82,11 +83,6 @@ class FnosCoordinator(DataUpdateCoordinator):
             via_device=(DOMAIN, machine_id),
             #configuration_url="self._api.config_url",
         )
-        
-        # 创建SystemInfo实例
-        # uptime_result = await self.system_info.get_uptime()
-        # print("系统运行时间信息2:", uptime_result)
-        # self.hass.states.async_set(f"{DOMAIN}.uptime", uptime_result.get('data').get('uptime'))
 
     async def async_setup(self):
         print("async_setup called")
@@ -102,6 +98,10 @@ class FnosCoordinator(DataUpdateCoordinator):
         """
         job_id = self._generate_job_id()
         _LOGGER.warn(f"[{self.config_entry.title}] [{job_id}] _async_update_data called")
+
+        return await self._async_retrieve_from_fnos(job_id)
+    
+    async def _async_retrieve_from_fnos(self, job_id):
         # try:
         #     # Note: asyncio.TimeoutError and aiohttp.ClientError are already
         #     # handled by the data update coordinator.
@@ -117,8 +117,14 @@ class FnosCoordinator(DataUpdateCoordinator):
         #     raise ConfigEntryAuthFailed from err
         # except ApiError as err:
         #     raise UpdateFailed(f"Error communicating with API: {err}")
+
+
+        try:
+            host_name_resp = await self.system_info.get_host_name()
+        except NotConnectedError as err:
+            await self.api.reconnect()
+            host_name_resp = await self.system_info.get_host_name()
         
-        # 创建SystemInfo实例
         try:
             uptime_result = await self.system_info.get_uptime()
         except NotConnectedError as err:
@@ -150,6 +156,7 @@ class FnosCoordinator(DataUpdateCoordinator):
         # self.hass.states.async_set(f"{DOMAIN}.uptime", uptime_result.get('data').get('uptime'))
         return {
             "uptime": uptime_result.get('data'),
+            "host_name": host_name_resp.get('data'),
             "cpu": cpu_result.get('data'),
             "memory": memory_result.get('data'),
             "store": store_result,
