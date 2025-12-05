@@ -1,0 +1,289 @@
+{
+    "array": [
+        {
+            "name": "dm-1",
+            "uuid": "trim_7cdec818_a061_415b_9307_400e4539235a-0",
+            "mountpoint": "/vol1",
+            "frsize": 2190473261056,
+            "fssize": 9000668856320,
+            "md": [
+                {
+                    "name": "md1",
+                    "uuid": "d52fce79-81e2-3633-b0c7-a06a6a35950f",
+                    "raidDisks": 4,
+                    "level": "raid5",
+                    "arrayState": "clean",
+                    "syncAction": "idle",
+                    "syncCompleted": "none"
+                }
+            ],
+            "level": "raid5",
+            "storId": 1,
+            "comment": ""
+        },
+        {
+            "name": "dm-0",
+            "uuid": "trim_13b15f05_d1cb_4fa3_8252_02809cab2410-0",
+            "mountpoint": "/vol2",
+            "frsize": 41496346624,
+            "fssize": 50429558784,
+            "md": [
+                {
+                    "name": "md0",
+                    "uuid": "1326ac6d-ae44-2c9a-b955-6dbf0b1cbe11",
+                    "raidDisks": 1,
+                    "level": "basic",
+                    "arrayState": "clean",
+                    "syncAction": "idle",
+                    "syncCompleted": "none"
+                }
+            ],
+            "level": "basic",
+            "storId": 2,
+            "comment": ""
+        }
+    ],
+    "block": [
+        {
+            "name": "dm-1",
+            "uuid": "trim_7cdec818_a061_415b_9307_400e4539235a-0",
+            "mountpoint": "/vol1",
+            "frsize": 2190473261056,
+            "fssize": 9000668856320,
+            "md": [
+                {
+                    "name": "md1",
+                    "holders": [
+                        "dm-1"
+                    ],
+                    "uuid": "d52fce79-81e2-3633-b0c7-a06a6a35950f",
+                    "raidDisks": 4,
+                    "level": "raid5",
+                    "arrayState": "clean",
+                    "syncAction": "idle",
+                    "syncCompleted": "none",
+                    "arr-devices": [
+                        {
+                            "name": "sde",
+                            "arrSlot": "2",
+                            "arrState": "in_sync"
+                        },
+                        {
+                            "name": "sdd",
+                            "arrSlot": "0",
+                            "arrState": "in_sync"
+                        },
+                        {
+                            "name": "sdc",
+                            "arrSlot": "3",
+                            "arrState": "in_sync"
+                        },
+                        {
+                            "name": "sdb",
+                            "arrSlot": "1",
+                            "arrState": "in_sync"
+                        }
+                    ]
+                }
+            ],
+            "level": "raid5"
+        },
+        {
+            "name": "sdd",
+            "modelName": "ST33000650SS",
+            "serialNumber": "Z292WHZL00009242LSTE",
+            "vendor": "SEAGATE",
+            "type": "HDD",
+            "protocol": "SCSI",
+            "logicalBlockSize": 512,
+            "rotationRate": 7200,
+            "diskGroup": "HDD",
+            "diskGroupEx": "HDD",
+            "partitions": [
+                {
+                    "no": 1,
+                    "name": "sdd1"
+                }
+            ]
+        },
+        {
+            "name": "sdb",
+            "modelName": "ST33000650SS",
+            "serialNumber": "Z292LP5M000092418WKK",
+            "vendor": "SEAGATE",
+            "type": "HDD",
+            "protocol": "SCSI",
+            "logicalBlockSize": 512,
+            "rotationRate": 7200,
+            "diskGroup": "HDD",
+            "diskGroupEx": "HDD",
+            "partitions": [
+                {
+                    "no": 1,
+                    "name": "sdb1"
+                }
+            ]
+        },
+        {
+            "name": "md0",
+            "holders": [
+                "dm-0"
+            ],
+            "uuid": "1326ac6d-ae44-2c9a-b955-6dbf0b1cbe11",
+            "raidDisks": 1,
+            "level": "basic",
+            "arrayState": "clean",
+            "syncAction": "idle",
+            "syncCompleted": "none",
+            "arr-devices": [
+                {
+                    "name": "sda",
+                    "arrSlot": "0",
+                    "arrState": "in_sync"
+                }
+            ]
+        },
+        {
+            "name": "dm-0",
+            "uuid": "trim_13b15f05_d1cb_4fa3_8252_02809cab2410-0",
+            "mountpoint": "/vol2",
+            "frsize": 41496346624,
+            "fssize": 50429558784,
+            "md": [
+                {
+                    "name": "md0",
+                    "holders": [
+                        "dm-0"
+                    ],
+                    "uuid": "1326ac6d-ae44-2c9a-b955-6dbf0b1cbe11",
+                    "raidDisks": 1,
+                    "level": "basic",
+                    "arrayState": "clean",
+                    "syncAction": "idle",
+                    "syncCompleted": "none",
+                    "arr-devices": [
+                        {
+                            "name": "sda",
+                            "arrSlot": "0",
+                            "arrState": "in_sync"
+                        }
+                    ]
+                }
+            ],
+            "level": "basic"
+        },
+        {
+            "name": "sde",
+            "modelName": "ST33000650SS",
+            "serialNumber": "Z293DKT8",
+            "vendor": "SEAGATE",
+            "type": "HDD",
+            "protocol": "SCSI",
+            "logicalBlockSize": 512,
+            "rotationRate": 7200,
+            "diskGroup": "HDD",
+            "diskGroupEx": "HDD",
+            "partitions": [
+                {
+                    "no": 1,
+                    "name": "sde1"
+                }
+            ]
+        },
+        {
+            "name": "sdc",
+            "modelName": "ST33000650SS",
+            "serialNumber": "Z292KZ3E0000924193CX",
+            "vendor": "SEAGATE",
+            "type": "HDD",
+            "protocol": "SCSI",
+            "logicalBlockSize": 512,
+            "rotationRate": 7200,
+            "diskGroup": "HDD",
+            "diskGroupEx": "HDD",
+            "partitions": [
+                {
+                    "no": 1,
+                    "name": "sdc1"
+                }
+            ]
+        },
+        {
+            "name": "sda",
+            "sys": 1,
+            "frsizeSys": 52018524160,
+            "fssizeSys": 63770718208,
+            "part": "sda3",
+            "partSize": 51314163712,
+            "modelName": "SanDisk SDSSDA120G",
+            "serialNumber": "160266400692",
+            "type": "SSD",
+            "protocol": "SATA",
+            "modelFamily": "SandForce Driven SSDs",
+            "firmwareVersion": "U21010RL",
+            "logicalBlockSize": 512,
+            "physicalBlockSize": 512,
+            "sataVersion": "SATA 3.2",
+            "diskGroup": "sysSSD",
+            "diskGroupEx": "sysSSD",
+            "partitions": [
+                {
+                    "no": 1,
+                    "name": "sda1",
+                    "mountName": "efi",
+                    "fssize": 97046528,
+                    "frsize": 88643584,
+                    "efi": 1
+                },
+                {
+                    "no": 2,
+                    "name": "sda2",
+                    "mountName": "/",
+                    "fssize": 63770718208,
+                    "frsize": 52018524160,
+                    "sys": 1
+                },
+                {
+                    "no": 3,
+                    "name": "sda3"
+                }
+            ]
+        },
+        {
+            "name": "md1",
+            "holders": [
+                "dm-1"
+            ],
+            "uuid": "d52fce79-81e2-3633-b0c7-a06a6a35950f",
+            "raidDisks": 4,
+            "level": "raid5",
+            "arrayState": "clean",
+            "syncAction": "idle",
+            "syncCompleted": "none",
+            "arr-devices": [
+                {
+                    "name": "sde",
+                    "arrSlot": "2",
+                    "arrState": "in_sync"
+                },
+                {
+                    "name": "sdd",
+                    "arrSlot": "0",
+                    "arrState": "in_sync"
+                },
+                {
+                    "name": "sdc",
+                    "arrSlot": "3",
+                    "arrState": "in_sync"
+                },
+                {
+                    "name": "sdb",
+                    "arrSlot": "1",
+                    "arrState": "in_sync"
+                }
+            ]
+        }
+    ],
+    "result": "succ",
+    "reqid": "693234ef0000000000000000001a"
+}

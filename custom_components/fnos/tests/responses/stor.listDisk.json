@@ -1,0 +1,149 @@
+{
+    "disk": [
+        {
+            "name": "sdd",
+            "size": 3000592982016,
+            "modelName": "ST33000650SS",
+            "serialNumber": "Z292WHZL00009242LSTE",
+            "vendor": "SEAGATE",
+            "type": "HDD",
+            "protocol": "SCSI",
+            "logicalBlockSize": 512,
+            "rotationRate": 7200,
+            "diskGroup": "HDD",
+            "diskGroupEx": "HDD",
+            "storage": [
+                {
+                    "arrState": "in_sync",
+                    "storUuid": "trim_7cdec818_a061_415b_9307_400e4539235a-0",
+                    "storId": 1,
+                    "storName": "dm-1",
+                    "level": "raid5"
+                }
+            ]
+        },
+        {
+            "name": "sdb",
+            "size": 3000592982016,
+            "modelName": "ST33000650SS",
+            "serialNumber": "Z292LP5M000092418WKK",
+            "vendor": "SEAGATE",
+            "type": "HDD",
+            "protocol": "SCSI",
+            "logicalBlockSize": 512,
+            "rotationRate": 7200,
+            "diskGroup": "HDD",
+            "diskGroupEx": "HDD",
+            "storage": [
+                {
+                    "arrState": "in_sync",
+                    "storUuid": "trim_7cdec818_a061_415b_9307_400e4539235a-0",
+                    "storId": 1,
+                    "storName": "dm-1",
+                    "level": "raid5"
+                }
+            ]
+        },
+        {
+            "name": "sde",
+            "size": 3000592982016,
+            "modelName": "ST33000650SS",
+            "serialNumber": "Z293DKT8",
+            "vendor": "SEAGATE",
+            "type": "HDD",
+            "protocol": "SCSI",
+            "logicalBlockSize": 512,
+            "rotationRate": 7200,
+            "diskGroup": "HDD",
+            "diskGroupEx": "HDD",
+            "storage": [
+                {
+                    "arrState": "in_sync",
+                    "storUuid": "trim_7cdec818_a061_415b_9307_400e4539235a-0",
+                    "storId": 1,
+                    "storName": "dm-1",
+                    "level": "raid5"
+                }
+            ]
+        },
+        {
+            "name": "sdc",
+            "size": 3000592982016,
+            "modelName": "ST33000650SS",
+            "serialNumber": "Z292KZ3E0000924193CX",
+            "vendor": "SEAGATE",
+            "type": "HDD",
+            "protocol": "SCSI",
+            "logicalBlockSize": 512,
+            "rotationRate": 7200,
+            "diskGroup": "HDD",
+            "diskGroupEx": "HDD",
+            "storage": [
+                {
+                    "arrState": "in_sync",
+                    "storUuid": "trim_7cdec818_a061_415b_9307_400e4539235a-0",
+                    "storId": 1,
+                    "storName": "dm-1",
+                    "level": "raid5"
+                }
+            ]
+        },
+        {
+            "name": "sda",
+            "size": 120034123776,
+            "sys": 1,
+            "frsizeSys": 52018524160,
+            "fssizeSys": 63770718208,
+            "part": "sda3",
+            "partSize": 51314163712,
+            "modelName": "SanDisk SDSSDA120G",
+            "serialNumber": "160266400692",
+            "type": "SSD",
+            "protocol": "SATA",
+            "modelFamily": "SandForce Driven SSDs",
+            "firmwareVersion": "U21010RL",
+            "logicalBlockSize": 512,
+            "physicalBlockSize": 512,
+            "sataVersion": "SATA 3.2",
+            "diskGroup": "sysSSD",
+            "diskGroupEx": "sysSSD",
+            "partitions": [
+                {
+                    "no": 1,
+                    "name": "sda1",
+                    "size": 98566144,
+                    "mountName": "efi",
+                    "fstype": "vfat",
+                    "fssize": 97046528,
+                    "frsize": 88643584,
+                    "efi": 1
+                },
+                {
+                    "no": 2,
+                    "name": "sda2",
+                    "size": 68619862016,
+                    "mountName": "/",
+                    "fstype": "ext4",
+                    "fssize": 63770718208,
+                    "frsize": 52018524160,
+                    "sys": 1
+                },
+                {
+                    "no": 3,
+                    "name": "sda3",
+                    "size": 51314163712
+                }
+            ],
+            "storage": [
+                {
+                    "arrState": "in_sync",
+                    "storUuid": "trim_13b15f05_d1cb_4fa3_8252_02809cab2410-0",
+                    "storId": 2,
+                    "storName": "dm-0",
+                    "level": "basic"
+                }
+            ]
+        }
+    ],
+    "reqid": "693234f300000000000000000029"
+}
