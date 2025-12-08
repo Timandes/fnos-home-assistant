@@ -150,6 +150,7 @@ class FnosCoordinator(DataUpdateCoordinator):
             store_result = await self.stor.general()
         _LOGGER.warn(f"[{self.config_entry.title}] [{job_id}] _async_update_data got stor.general {store_result}")
 
+        disk_resp = await self._async_retrieve_disk_from_fnos(job_id)
 
         #print(f"[{job_id}] 系统运行时间信息5:", uptime_result)
         _LOGGER.warn(f"[{self.config_entry.title}] [{job_id}] _async_update_data returned with {uptime_result}")
@@ -160,4 +161,27 @@ class FnosCoordinator(DataUpdateCoordinator):
             "cpu": cpu_result.get('data'),
             "memory": memory_result.get('data'),
             "store": store_result,
+            "disk": disk_resp,
         }
+    
+    async def _async_retrieve_disk_from_fnos(self, job_id):
+        try:
+            disk_resp = await self.stor.list_disks()
+        except NotConnectedError as err:
+            await self.api.reconnect()
+            disk_resp = await self.stor.list_disks()
+
+        _LOGGER.warn(f"[{self.config_entry.title}] [{job_id}] _async_update_data got stor.listDisk {disk_resp}")
+
+        for item in disk_resp.get("disk"):
+            name = item.get("name")
+
+            try:
+                smart_resp = await self.stor.get_disk_smart(name)
+            except NotConnectedError as err:
+                await self.api.reconnect()
+                smart_resp = await self.stor.get_disk_smart(name)
+
+            item["smart"] = smart_resp.get("smart")
+
+        return disk_resp.get('disk')

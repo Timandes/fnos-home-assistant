@@ -15,11 +15,13 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    CONF_DISKS,
     CONF_HOST,
     CONF_PASSWORD,
     CONF_PORT,
     CONF_USERNAME,
     PERCENTAGE,
+    EntityCategory,
     UnitOfInformation,
     UnitOfTemperature,
     UnitOfTime,
@@ -118,6 +120,30 @@ STORAGE_VOL_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
     ),
 )
 
+STORAGE_DISK_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
+    FnosSensorEntityDescription(
+        key="disk_smart_status",
+        translation_key="disk_smart_status",
+        entity_registry_enabled_default=False,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: data.get("smart").get('smart_status').get('passed')
+    ),
+    # FnosSensorEntityDescription(
+    #     key="disk_status",
+    #     translation_key="disk_status",
+    #     entity_category=EntityCategory.DIAGNOSTIC,
+    #     value_fn=lambda data: data.get("todo")
+    # ),
+    # FnosSensorEntityDescription(
+    #     key="disk_temp",
+    #     translation_key="disk_temp",
+    #     native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    #     device_class=SensorDeviceClass.TEMPERATURE,
+    #     state_class=SensorStateClass.MEASUREMENT,
+    #     entity_category=EntityCategory.DIAGNOSTIC,
+    #     value_fn=lambda data: data.get("todo")
+    #),
+)
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -134,13 +160,23 @@ async def async_setup_entry(
         FnosSensorEntity(coordinator, description) for description in SENSOR_TYPES
     ]
 
-        # Handle all volumes
+    # Handle all volumes
     if coordinator.data.get("store").get("array"):
         entities.extend(
             [
                 FnosVolumeSensorEntity(coordinator, description, volume)
                 for volume in entry.data.get(CONF_VOLUMES, coordinator.data.get("store").get("array"))
                 for description in STORAGE_VOL_SENSORS
+            ]
+        )
+
+    # Handle all disks
+    if coordinator.data.get("disk"):
+        entities.extend(
+            [
+                FnosDiskSensorEntity(coordinator, description, disk)
+                for disk in entry.data.get(CONF_DISKS, coordinator.data.get("disk"))
+                for description in STORAGE_DISK_SENSORS
             ]
         )
 
@@ -190,6 +226,8 @@ class FnosVolumeSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         self.volume_name = volume.get("name")
         volume_uuid = volume.get("uuid")
         trim_version = self.coordinator.data['host_name'].get('trimVersion')
+        # hostName实际上“设置”页可修改的“设备名称”
+        host_name = self.coordinator.data.get("host_name").get('hostName')
 
         self.entity_description = description
         self._attr_unique_id = f"{coordinator.machine_id}_{volume_uuid}_{description.key}"
@@ -198,7 +236,7 @@ class FnosVolumeSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         #self._device_id = coordinator.device_id
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{coordinator.machine_id}_{volume_uuid}")},
-            name=self.volume_name.replace("_", " ").capitalize(),
+            name=f"{host_name} ({self.volume_name})",
             manufacturer="fnOS",
             model="Volume",
             sw_version=trim_version,
@@ -212,6 +250,57 @@ class FnosVolumeSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         data = {}
         for item in self.coordinator.data.get("store").get("array"):
             if item.get("name") == self.volume_name:
+                data = item
+
+        return self.entity_description.value_fn(data)
+
+
+class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
+    """Representation of a disk sensor in fnOS."""
+
+    entity_description: FnosSensorEntityDescription
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator: FnosCoordinator,
+        description: FnosSensorEntityDescription,
+        disk
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator)
+        _LOGGER.warn(f"[FnosDiskSensorEntity] disk: {disk}")
+        _LOGGER.warn(f"[FnosDiskSensorEntity] coordinator.data.get(disk): {self.coordinator.data.get("disk")}")
+        
+        self.disk_name = disk.get("name")
+        disk_sn = disk.get("serialNumber")
+        disk_model = disk.get("modelName")
+        disk_vendor = disk.get("vendor")
+        trim_version = self.coordinator.data['host_name'].get('trimVersion')
+        # hostName实际上“设置”页可修改的“设备名称”
+        host_name = self.coordinator.data.get("host_name").get('hostName')
+
+        self.entity_description = description
+        self._attr_unique_id = f"{coordinator.machine_id}_{disk_sn}_{description.key}"
+
+        # Set device info
+        #self._device_id = coordinator.device_id
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"{coordinator.machine_id}_{disk_sn}")},
+            name=f"{host_name} ({self.disk_name})",
+            manufacturer=disk_vendor,
+            model=disk_model,
+            sw_version=trim_version,
+            via_device=(DOMAIN, coordinator.machine_id),
+        )
+
+    @property
+    def native_value(self) -> StateType:
+        """Return the state of the sensor."""
+
+        data = {}
+        for item in self.coordinator.data.get("disk"):
+            if item.get("name") == self.disk_name:
                 data = item
 
         return self.entity_description.value_fn(data)
