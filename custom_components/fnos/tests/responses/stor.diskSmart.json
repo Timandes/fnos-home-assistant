@@ -1,0 +1,901 @@
+{
+    "smart": {
+        "json_format_version": [
+            1,
+            0
+        ],
+        "smartctl": {
+            "version": [
+                7,
+                3
+            ],
+            "svn_revision": "5338",
+            "platform_info": "x86_64-linux-6.12.18-trim",
+            "build_info": "(local build)",
+            "argv": [
+                "smartctl",
+                "-a",
+                "--json",
+                "/dev/sda",
+                "--nocheck=standby"
+            ],
+            "drive_database_version": {
+                "string": "7.3/5988"
+            },
+            "exit_status": 0
+        },
+        "local_time": {
+            "time_t": 1764898035,
+            "asctime": "Fri Dec  5 09:27:15 2025 CST"
+        },
+        "device": {
+            "name": "/dev/sda",
+            "info_name": "/dev/sda [SAT]",
+            "type": "sat",
+            "protocol": "ATA"
+        },
+        "model_family": "SandForce Driven SSDs",
+        "model_name": "SanDisk SDSSDA120G",
+        "serial_number": "160266400692",
+        "wwn": {
+            "naa": 5,
+            "oui": 6980,
+            "id": 19936077666
+        },
+        "firmware_version": "U21010RL",
+        "user_capacity": {
+            "blocks": 234441648,
+            "bytes": 120034123776
+        },
+        "logical_block_size": 512,
+        "physical_block_size": 512,
+        "rotation_rate": 0,
+        "form_factor": {
+            "ata_value": 3,
+            "name": "2.5 inches"
+        },
+        "trim": {
+            "supported": true,
+            "deterministic": false,
+            "zeroed": false
+        },
+        "in_smartctl_database": true,
+        "ata_version": {
+            "string": "ACS-2 T13/2015-D revision 3",
+            "major_value": 1008,
+            "minor_value": 272
+        },
+        "sata_version": {
+            "string": "SATA 3.2",
+            "value": 255
+        },
+        "interface_speed": {
+            "max": {
+                "sata_value": 14,
+                "string": "6.0 Gb/s",
+                "units_per_second": 60,
+                "bits_per_unit": 100000000
+            },
+            "current": {
+                "sata_value": 3,
+                "string": "6.0 Gb/s",
+                "units_per_second": 60,
+                "bits_per_unit": 100000000
+            }
+        },
+        "smart_support": {
+            "available": true,
+            "enabled": true
+        },
+        "smart_status": {
+            "passed": true
+        },
+        "ata_smart_data": {
+            "offline_data_collection": {
+                "status": {
+                    "value": 2,
+                    "string": "was completed without error",
+                    "passed": true
+                },
+                "completion_seconds": 0
+            },
+            "self_test": {
+                "status": {
+                    "value": 0,
+                    "string": "completed without error",
+                    "passed": true
+                },
+                "polling_minutes": {
+                    "short": 2,
+                    "extended": 10,
+                    "conveyance": 2
+                }
+            },
+            "capabilities": {
+                "values": [
+                    113,
+                    2
+                ],
+                "exec_offline_immediate_supported": true,
+                "offline_is_aborted_upon_new_cmd": false,
+                "offline_surface_scan_supported": false,
+                "self_tests_supported": true,
+                "conveyance_self_test_supported": true,
+                "selective_self_test_supported": true,
+                "attribute_autosave_enabled": false,
+                "error_logging_supported": true,
+                "gp_logging_supported": true
+            }
+        },
+        "ata_smart_attributes": {
+            "revision": 1,
+            "table": [
+                {
+                    "id": 5,
+                    "name": "Retired_Block_Count",
+                    "value": 100,
+                    "worst": 100,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 50,
+                        "string": "-O--CK ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 0,
+                        "string": "0"
+                    }
+                },
+                {
+                    "id": 9,
+                    "name": "Power_On_Hours",
+                    "value": 194,
+                    "worst": 100,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 50,
+                        "string": "-O--CK ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 8642,
+                        "string": "8642"
+                    }
+                },
+                {
+                    "id": 12,
+                    "name": "Power_Cycle_Count",
+                    "value": 100,
+                    "worst": 100,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 50,
+                        "string": "-O--CK ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 446,
+                        "string": "446"
+                    }
+                },
+                {
+                    "id": 166,
+                    "name": "Min_PE_Cycles",
+                    "value": 100,
+                    "worst": 100,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 50,
+                        "string": "-O--CK ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 142,
+                        "string": "142"
+                    }
+                },
+                {
+                    "id": 167,
+                    "name": "Max_Bad_Blocks_Per_Die",
+                    "value": 100,
+                    "worst": 100,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 50,
+                        "string": "-O--CK ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 0,
+                        "string": "0"
+                    }
+                },
+                {
+                    "id": 168,
+                    "name": "Max_PE_Cycles",
+                    "value": 100,
+                    "worst": 100,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 50,
+                        "string": "-O--CK ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 199,
+                        "string": "199"
+                    }
+                },
+                {
+                    "id": 169,
+                    "name": "Total_Bad_Blocks",
+                    "value": 100,
+                    "worst": 100,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 50,
+                        "string": "-O--CK ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 12,
+                        "string": "12"
+                    }
+                },
+                {
+                    "id": 170,
+                    "name": "Grown_Bad_Blocks",
+                    "value": 100,
+                    "worst": 100,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 50,
+                        "string": "-O--CK ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 0,
+                        "string": "0"
+                    }
+                },
+                {
+                    "id": 171,
+                    "name": "Program_Fail_Count",
+                    "value": 100,
+                    "worst": 100,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 50,
+                        "string": "-O--CK ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 0,
+                        "string": "0"
+                    }
+                },
+                {
+                    "id": 172,
+                    "name": "Erase_Fail_Count",
+                    "value": 100,
+                    "worst": 100,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 50,
+                        "string": "-O--CK ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 0,
+                        "string": "0"
+                    }
+                },
+                {
+                    "id": 173,
+                    "name": "Average_PE_Cycles",
+                    "value": 100,
+                    "worst": 100,
+                    "flags": {
+                        "value": 50,
+                        "string": "-O--CK ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 181,
+                        "string": "181"
+                    }
+                },
+                {
+                    "id": 174,
+                    "name": "Unexpect_Power_Loss_Ct",
+                    "value": 100,
+                    "worst": 100,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 50,
+                        "string": "-O--CK ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 73,
+                        "string": "73"
+                    }
+                },
+                {
+                    "id": 187,
+                    "name": "Reported_Uncorrect",
+                    "value": 100,
+                    "worst": 100,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 50,
+                        "string": "-O--CK ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 0,
+                        "string": "0"
+                    }
+                },
+                {
+                    "id": 194,
+                    "name": "Temperature_Celsius",
+                    "value": 67,
+                    "worst": 100,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 34,
+                        "string": "-O---K ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": false,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 240518168609,
+                        "string": "33 (Min/Max 0/56)"
+                    }
+                },
+                {
+                    "id": 199,
+                    "name": "UDMA_CRC_Error_Count",
+                    "value": 100,
+                    "worst": 100,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 50,
+                        "string": "-O--CK ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 119,
+                        "string": "119"
+                    }
+                },
+                {
+                    "id": 230,
+                    "name": "Media_Wearout_Indicator",
+                    "value": 100,
+                    "worst": 100,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 50,
+                        "string": "-O--CK ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 6,
+                        "string": "6"
+                    }
+                },
+                {
+                    "id": 232,
+                    "name": "Available_Reservd_Space",
+                    "value": 100,
+                    "worst": 100,
+                    "thresh": 4,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 51,
+                        "string": "PO--CK ",
+                        "prefailure": true,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 100,
+                        "string": "100"
+                    }
+                },
+                {
+                    "id": 233,
+                    "name": "NAND_GiB_Written",
+                    "value": 100,
+                    "worst": 100,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 50,
+                        "string": "-O--CK ",
+                        "prefailure": false,
+                        "updated_online": true,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 21024,
+                        "string": "21024"
+                    }
+                },
+                {
+                    "id": 241,
+                    "name": "Lifetime_Writes_GiB",
+                    "value": 253,
+                    "worst": 253,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 48,
+                        "string": "----CK ",
+                        "prefailure": false,
+                        "updated_online": false,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 6564,
+                        "string": "6564"
+                    }
+                },
+                {
+                    "id": 242,
+                    "name": "Lifetime_Reads_GiB",
+                    "value": 253,
+                    "worst": 253,
+                    "thresh": 0,
+                    "when_failed": "",
+                    "flags": {
+                        "value": 48,
+                        "string": "----CK ",
+                        "prefailure": false,
+                        "updated_online": false,
+                        "performance": false,
+                        "error_rate": false,
+                        "event_count": true,
+                        "auto_keep": true
+                    },
+                    "raw": {
+                        "value": 3412,
+                        "string": "3412"
+                    }
+                }
+            ]
+        },
+        "power_on_time": {
+            "hours": 8642
+        },
+        "power_cycle_count": 446,
+        "temperature": {
+            "current": 33
+        },
+        "ata_smart_error_log": {
+            "summary": {
+                "revision": 1,
+                "count": 0
+            }
+        },
+        "ata_smart_self_test_log": {
+            "standard": {
+                "revision": 1,
+                "table": [
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 181
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 179
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 155
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 131
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 107
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 83
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 59
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 35
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 11
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 243
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 219
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 195
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 171
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 147
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 123
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 99
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 75
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 51
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 27
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 3
+                    },
+                    {
+                        "type": {
+                            "value": 1,
+                            "string": "Short offline"
+                        },
+                        "status": {
+                            "value": 0,
+                            "string": "Completed without error",
+                            "passed": true
+                        },
+                        "lifetime_hours": 235
+                    }
+                ],
+                "count": 21,
+                "error_count_total": 0,
+                "error_count_outdated": 0
+            }
+        },
+        "ata_smart_selective_self_test_log": {
+            "revision": 1,
+            "table": [
+                {
+                    "lba_min": 0,
+                    "lba_max": 0,
+                    "status": {
+                        "value": 0,
+                        "string": "Not_testing"
+                    }
+                },
+                {
+                    "lba_min": 0,
+                    "lba_max": 0,
+                    "status": {
+                        "value": 0,
+                        "string": "Not_testing"
+                    }
+                },
+                {
+                    "lba_min": 0,
+                    "lba_max": 0,
+                    "status": {
+                        "value": 0,
+                        "string": "Not_testing"
+                    }
+                },
+                {
+                    "lba_min": 0,
+                    "lba_max": 0,
+                    "status": {
+                        "value": 0,
+                        "string": "Not_testing"
+                    }
+                },
+                {
+                    "lba_min": 0,
+                    "lba_max": 0,
+                    "status": {
+                        "value": 0,
+                        "string": "Not_testing"
+                    }
+                }
+            ],
+            "flags": {
+                "value": 0,
+                "remainder_scan_enabled": false
+            },
+            "power_up_scan_resume_minutes": 0
+        }
+    },
+    "result": "succ",
+    "reqid": "693234f30000000000000000002a"
+}
