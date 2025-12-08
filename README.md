@@ -1,4 +1,4 @@
-# fnOS HomeAssistant组件
+# 飞牛fnOS HomeAssistant组件
 
 飞牛fnOS集成是一个**非官方**提供支持的 Home Assistant 的集成组件，它可以让您在 Home Assistant 中将飞牛fnOS视为智能设备。
 
