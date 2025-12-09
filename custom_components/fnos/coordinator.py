@@ -49,21 +49,23 @@ class FnosCoordinator(DataUpdateCoordinator):
         coordinator.async_config_entry_first_refresh.
         """
         job_id = self._generate_job_id()
-        _LOGGER.warning("[%s] [%s] _async_setup called",
-                       self.config_entry.title, job_id)
+        _LOGGER.warning(
+            "[%s] [%s] _async_setup called",
+            self.config_entry.title, job_id
+        )
 
         self.data = await self._async_retrieve_from_fnos(job_id)
 
         machine_id_resp = await self.system_info.get_machine_id()
-        machine_id = machine_id_resp.get('data').get('machineId')
+        machine_id = machine_id_resp.get("data").get("machineId")
         self.machine_id = machine_id
 
         # hostName实际上“设置”页可修改的“设备名称”
-        host_name = self.data.get("host_name").get('hostName')
-        trim_version = self.data.get("host_name").get('trimVersion')
+        host_name = self.data.get("host_name").get("hostName")
+        trim_version = self.data.get("host_name").get("trimVersion")
 
         hardware_info_resp = await self.system_info.get_hardware_info()
-        cpu_name = hardware_info_resp.get('data').get('cpu').get('name')
+        cpu_name = hardware_info_resp.get("data").get("cpu").get("name")
 
         self.device_id = machine_id
         self.device_info = DeviceInfo(
@@ -96,8 +98,10 @@ class FnosCoordinator(DataUpdateCoordinator):
         so entities can quickly look up their data.
         """
         job_id = self._generate_job_id()
-        _LOGGER.warning("[%s] [%s] _async_update_data called",
-                       self.config_entry.title, job_id)
+        _LOGGER.warning(
+            "[%s] [%s] _async_update_data called",
+            self.config_entry.title, job_id
+        )
 
         return await self._async_retrieve_from_fnos(job_id)
 
@@ -106,8 +110,10 @@ class FnosCoordinator(DataUpdateCoordinator):
         #     # Note: asyncio.TimeoutError and aiohttp.ClientError are already
         #     # handled by the data update coordinator.
         #     async with async_timeout.timeout(10):
-        #         # Grab active context variables to limit data required to be fetched from API
-        #         # Note: using context is not required if there is no need or ability to limit
+        #         # Grab active context variables to limit data required to be
+        #         # fetched from API
+        #         # Note: using context is not required if there is no need or
+        #         # ability to limit
         #         # data retrieved from API.
         #         listening_idx = set(self.async_contexts())
         #         return await self.api.fetch_data(listening_idx)
@@ -148,20 +154,26 @@ class FnosCoordinator(DataUpdateCoordinator):
         except NotConnectedError:
             await self.api.reconnect()
             store_result = await self.stor.general()
-        _LOGGER.warning("[%s] [%s] _async_update_data got stor.general %s",
-                       self.config_entry.title, job_id, store_result)
+        _LOGGER.warning(
+            "[%s] [%s] _async_update_data got stor.general %s",
+            self.config_entry.title, job_id, store_result
+        )
 
         disk_resp = await self._async_retrieve_disk_from_fnos(job_id)
 
         #print(f"[{job_id}] 系统运行时间信息5:", uptime_result)
-        _LOGGER.warning("[%s] [%s] _async_update_data returned with %s",
-                       self.config_entry.title, job_id, uptime_result)
-        # self.hass.states.async_set(f"{DOMAIN}.uptime", uptime_result.get('data').get('uptime'))
+        _LOGGER.warning(
+            "[%s] [%s] _async_update_data returned with %s",
+            self.config_entry.title, job_id, uptime_result
+        )
+        # self.hass.states.async_set(
+        #     f"{DOMAIN}.uptime", uptime_result.get('data').get('uptime')
+        # )
         return {
-            "uptime": uptime_result.get('data'),
-            "host_name": host_name_resp.get('data'),
-            "cpu": cpu_result.get('data'),
-            "memory": memory_result.get('data'),
+            "uptime": uptime_result.get("data"),
+            "host_name": host_name_resp.get("data"),
+            "cpu": cpu_result.get("data"),
+            "memory": memory_result.get("data"),
             "store": store_result,
             "disk": disk_resp,
         }
@@ -173,8 +185,10 @@ class FnosCoordinator(DataUpdateCoordinator):
             await self.api.reconnect()
             disk_resp = await self.stor.list_disks()
 
-        _LOGGER.warning("[%s] [%s] _async_update_data got stor.listDisk %s",
-                       self.config_entry.title, job_id, disk_resp)
+        _LOGGER.warning(
+            "[%s] [%s] _async_update_data got stor.listDisk %s",
+            self.config_entry.title, job_id, disk_resp
+        )
 
         for item in disk_resp.get("disk"):
             name = item.get("name")
@@ -187,4 +201,4 @@ class FnosCoordinator(DataUpdateCoordinator):
 
             item["smart"] = smart_resp.get("smart")
 
-        return disk_resp.get('disk')
+        return disk_resp.get("disk")

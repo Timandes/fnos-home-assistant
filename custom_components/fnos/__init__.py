@@ -37,9 +37,14 @@ def on_message_handler(message):
     """消息回调处理函数"""
     print(f"收到消息: {message}")
 
-async def async_setup_entry(hass: HomeAssistant, entry: FnosConfigEntry) -> bool:
+async def async_setup_entry(
+    hass: HomeAssistant, entry: FnosConfigEntry
+) -> bool:
     """Set up fnOS from a config entry."""
-    from .coordinator import FnosCoordinator  # Import here to avoid circular import
+    # Import here to avoid circular import
+    from .coordinator import (  # pylint: disable=import-outside-toplevel
+        FnosCoordinator,
+    )
 
     _LOGGER.warning("fnos.async_setup_entry called")
 
@@ -52,7 +57,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: FnosConfigEntry) -> bool
     await client.connect(entry.data.get(CONF_HOST))
 
     # 使用命令行参数中的用户名和密码
-    result = await client.login(entry.data.get(CONF_USERNAME), entry.data.get(CONF_PASSWORD))
+    result = await client.login(
+        entry.data.get(CONF_USERNAME),
+        entry.data.get(CONF_PASSWORD)
+    )
     print("登录结果:", result)
 
     coordinator = FnosCoordinator(hass, entry, client)
@@ -77,9 +85,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: FnosConfigEntry) -> bool
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: FnosConfigEntry) -> bool:
+async def async_unload_entry(
+    hass: HomeAssistant, entry: FnosConfigEntry
+) -> bool:
     """Unload a config entry."""
 
     _LOGGER.warning("fnos.async_unload_entry called")
 
-    return await hass.config_entries.async_unload_platforms(entry, _PLATFORMS)
+    return await hass.config_entries.async_unload_platforms(
+        entry, _PLATFORMS
+    )

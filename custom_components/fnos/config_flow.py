@@ -36,12 +36,14 @@ class FnosHub:
     async def authenticate(self, username: str, password: str) -> bool:
         """Test if we can authenticate with the host."""
         try:
+            # pylint: disable=import-outside-toplevel
             from fnos import FnosClient
             self._client = FnosClient()
             await self._client.connect(self.host)
             result = await self._client.login(username, password)
             return result.get("success", False)
-        except Exception:
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            _LOGGER.exception("Authentication failed: %s", exc)
             return False
 
     async def disconnect(self) -> None:
@@ -50,14 +52,20 @@ class FnosHub:
             await self._client.disconnect()
 
 
-async def validate_input(_hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
+async def validate_input(
+    hass: HomeAssistant,  # pylint: disable=unused-argument
+    data: dict[str, Any]
+) -> dict[str, Any]:
     """Validate the user input allows us to connect.
 
-    Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
+    Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the
+    user.
     """
     hub = FnosHub(data[CONF_HOST])
 
-    if not await hub.authenticate(data[CONF_USERNAME], data[CONF_PASSWORD]):
+    if not await hub.authenticate(
+        data[CONF_USERNAME], data[CONF_PASSWORD]
+    ):
         raise InvalidAuth
 
     return {}
@@ -83,14 +91,18 @@ class FnosConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = "cannot_connect"
             except InvalidAuth:
                 errors["base"] = "invalid_auth"
-            except Exception as exc:
+            except Exception as exc:  # pylint: disable=broad-exception-caught
                 _LOGGER.exception("Unexpected exception: %s", exc)
                 errors["base"] = "unknown"
             else:
-                return self.async_create_entry(title=friendly_name or host, data=user_input)
+                return self.async_create_entry(
+                    title=friendly_name or host, data=user_input
+                )
 
         return self.async_show_form(
-            step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
+            step_id="user",
+            data_schema=STEP_USER_DATA_SCHEMA,
+            errors=errors
         )
 
 

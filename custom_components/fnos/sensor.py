@@ -40,14 +40,14 @@ class FnosSensorEntityDescription(SensorEntityDescription):
 
 
 SENSOR_TYPES: tuple[FnosSensorEntityDescription, ...] = (
-    FnosSensorEntityDescription(
+    FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="uptime",
         translation_key="uptime",
         state_class=SensorStateClass.MEASUREMENT,
         device_class=SensorDeviceClass.DURATION,
         value_fn=lambda data: data.get("uptime").get("uptime"),
     ),
-    FnosSensorEntityDescription(
+    FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="cpu_usage",
         translation_key="cpu_usage",
         native_unit_of_measurement=PERCENTAGE,
@@ -55,38 +55,41 @@ SENSOR_TYPES: tuple[FnosSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.POWER_FACTOR,
         value_fn=lambda data: data.get("cpu").get("cpu").get("busy").get("all"),
     ),
-    FnosSensorEntityDescription(
+    FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="memory_usage",
         translation_key="memory_usage",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         device_class=SensorDeviceClass.POWER_FACTOR,
-        value_fn=lambda data: (data.get("memory").get("mem").get("used") /
-                               data.get("memory").get("mem").get("total") * 100.0),
+        value_fn=lambda data: (
+            data.get("memory").get("mem").get("used") /
+            data.get("memory").get("mem").get("total") * 100.0
+        ),
     ),
-    FnosSensorEntityDescription(
+    FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="cpu_temperature",
         translation_key="cpu_temperature",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         state_class=SensorStateClass.MEASUREMENT,
         device_class=SensorDeviceClass.TEMPERATURE,
-        value_fn=lambda data: data.get('cpu').get("cpu").get('temp')[0],
+        value_fn=lambda data: data.get("cpu").get("cpu").get("temp")[0],
     ),
     # Deprecated by volume_percentage_used
-    FnosSensorEntityDescription(
+    FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="disk_usage",
         translation_key="disk_usage",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         device_class=SensorDeviceClass.POWER_FACTOR,
-        value_fn=lambda data: max((item["fssize"] - item["frsize"]) /
-                                  item["fssize"] * 100.0
-                                  for item in data.get("store").get("array"))
+        value_fn=lambda data: max(
+            (item["fssize"] - item["frsize"]) / item["fssize"] * 100.0
+            for item in data.get("store").get("array")
+        )
     ),
 )
 
 STORAGE_VOL_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
-    FnosSensorEntityDescription(
+    FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="volume_size_used",
         translation_key="volume_size_used",
         native_unit_of_measurement=UnitOfInformation.BYTES,
@@ -96,7 +99,7 @@ STORAGE_VOL_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: data.get("fssize") - data.get("frsize")
     ),
-    FnosSensorEntityDescription(
+    FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="volume_size_total",
         translation_key="volume_size_total",
         native_unit_of_measurement=UnitOfInformation.BYTES,
@@ -106,21 +109,24 @@ STORAGE_VOL_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: data.get("fssize")
     ),
-    FnosSensorEntityDescription(
+    FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="volume_percentage_used",
         translation_key="volume_percentage_used",
         native_unit_of_measurement=PERCENTAGE,
-        value_fn=lambda data: ((data["fssize"] - data["frsize"]) /
-                               data["fssize"] * 100.0)
+        value_fn=lambda data: (
+            (data["fssize"] - data["frsize"]) / data["fssize"] * 100.0
+        )
     ),
 )
 
 STORAGE_DISK_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
-    FnosSensorEntityDescription(
+    FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="disk_smart_status",
         translation_key="disk_smart_status",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: data.get("smart").get('smart_status').get('passed')
+        value_fn=lambda data: (
+            data.get("smart").get("smart_status").get("passed")
+        )
     ),
     # FnosSensorEntityDescription(
     #     key="disk_status",
@@ -140,7 +146,7 @@ STORAGE_DISK_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
 )
 
 async def async_setup_entry(
-    _hass: HomeAssistant,
+    hass: HomeAssistant,  # pylint: disable=unused-argument
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
@@ -151,7 +157,8 @@ async def async_setup_entry(
     coordinator = data.coordinator
 
     entities = [
-        FnosSensorEntity(coordinator, description) for description in SENSOR_TYPES
+        FnosSensorEntity(coordinator, description, "general")
+        for description in SENSOR_TYPES
     ]
 
     # Handle all volumes
@@ -159,8 +166,10 @@ async def async_setup_entry(
         entities.extend(
             [
                 FnosVolumeSensorEntity(coordinator, description, volume)
-                for volume in entry.data.get(CONF_VOLUMES,
-                                           coordinator.data.get("store").get("array"))
+                for volume in entry.data.get(
+                    CONF_VOLUMES,
+                    coordinator.data.get("store").get("array")
+                )
                 for description in STORAGE_VOL_SENSORS
             ]
         )
@@ -170,7 +179,9 @@ async def async_setup_entry(
         entities.extend(
             [
                 FnosDiskSensorEntity(coordinator, description, disk)
-                for disk in entry.data.get(CONF_DISKS, coordinator.data.get("disk"))
+                for disk in entry.data.get(
+                    CONF_DISKS, coordinator.data.get("disk")
+                )
                 for description in STORAGE_DISK_SENSORS
             ]
         )
@@ -188,11 +199,15 @@ class FnosSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         self,
         coordinator: FnosCoordinator,
         description: FnosSensorEntityDescription,
+        disk_name: str,
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
         self.entity_description = description
-        self._attr_unique_id = f"{coordinator.machine_id}_{description.key}"
+        self.disk_name = disk_name
+        self._attr_unique_id = (
+            f"{coordinator.machine_id}_{disk_name}_{description.key}"
+        )
         self._attr_device_info = coordinator.device_info
 
     @property
@@ -222,12 +237,14 @@ class FnosVolumeSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         super().__init__(coordinator)
         self.volume_name = volume.get("name")
         volume_uuid = volume.get("uuid")
-        trim_version = self.coordinator.data['host_name'].get('trimVersion')
+        trim_version = self.coordinator.data["host_name"].get("trimVersion")
         # hostName实际上“设置”页可修改的“设备名称”
-        host_name = self.coordinator.data.get("host_name").get('hostName')
+        host_name = self.coordinator.data.get("host_name").get("hostName")
 
         self.entity_description = description
-        self._attr_unique_id = f"{coordinator.machine_id}_{volume_uuid}_{description.key}"
+        self._attr_unique_id = (
+            f"{coordinator.machine_id}_{volume_uuid}_{description.key}"
+        )
 
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{coordinator.machine_id}_{volume_uuid}")},
@@ -270,19 +287,23 @@ class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator)
         _LOGGER.warning("[FnosDiskSensorEntity] disk: %s", disk)
-        _LOGGER.warning("[FnosDiskSensorEntity] coordinator.data.get(disk): %s",
-                       self.coordinator.data.get("disk"))
+        _LOGGER.warning(
+            "[FnosDiskSensorEntity] coordinator.data.get(disk): %s",
+            self.coordinator.data.get("disk")
+        )
 
         self.disk_name = disk.get("name")
         disk_sn = disk.get("serialNumber")
         disk_model = disk.get("modelName")
         disk_vendor = disk.get("vendor")
-        trim_version = self.coordinator.data['host_name'].get('trimVersion')
+        trim_version = self.coordinator.data["host_name"].get("trimVersion")
         # hostName实际上“设置”页可修改的“设备名称”
-        host_name = self.coordinator.data.get("host_name").get('hostName')
+        host_name = self.coordinator.data.get("host_name").get("hostName")
 
         self.entity_description = description
-        self._attr_unique_id = f"{coordinator.machine_id}_{disk_sn}_{description.key}"
+        self._attr_unique_id = (
+            f"{coordinator.machine_id}_{disk_sn}_{description.key}"
+        )
 
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{coordinator.machine_id}_{disk_sn}")},
