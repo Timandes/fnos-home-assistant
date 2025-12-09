@@ -18,7 +18,6 @@ from homeassistant.const import (
     EntityCategory,
     UnitOfInformation,
     UnitOfTemperature,
-    UnitOfTime,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -44,7 +43,6 @@ SENSOR_TYPES: tuple[FnosSensorEntityDescription, ...] = (
     FnosSensorEntityDescription(
         key="uptime",
         translation_key="uptime",
-        native_unit_of_measurement=UnitOfTime.SECONDS,
         state_class=SensorStateClass.MEASUREMENT,
         device_class=SensorDeviceClass.DURATION,
         value_fn=lambda data: data.get("uptime").get("uptime"),
@@ -105,7 +103,6 @@ STORAGE_VOL_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
         suggested_unit_of_measurement=UnitOfInformation.TERABYTES,
         suggested_display_precision=2,
         device_class=SensorDeviceClass.DATA_SIZE,
-        entity_registry_enabled_default=False,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: data.get("fssize")
     ),
@@ -122,7 +119,6 @@ STORAGE_DISK_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
     FnosSensorEntityDescription(
         key="disk_smart_status",
         translation_key="disk_smart_status",
-        entity_registry_enabled_default=False,
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: data.get("smart").get('smart_status').get('passed')
     ),
@@ -197,15 +193,17 @@ class FnosSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         super().__init__(coordinator)
         self.entity_description = description
         self._attr_unique_id = f"{coordinator.machine_id}_{description.key}"
-
-        # Set device info
-        #self._device_id = coordinator.device_id
         self._attr_device_info = coordinator.device_info
 
     @property
     def native_value(self) -> StateType:
         """Return the state of the sensor."""
         return self.entity_description.value_fn(self.coordinator.data)
+
+    @property
+    def available(self) -> bool:
+        """Return if entity is available."""
+        return self.coordinator.last_update_success
 
 
 class FnosVolumeSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
@@ -231,8 +229,6 @@ class FnosVolumeSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         self.entity_description = description
         self._attr_unique_id = f"{coordinator.machine_id}_{volume_uuid}_{description.key}"
 
-        # Set device info
-        #self._device_id = coordinator.device_id
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{coordinator.machine_id}_{volume_uuid}")},
             name=f"{host_name} ({self.volume_name})",
@@ -245,13 +241,18 @@ class FnosVolumeSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
     @property
     def native_value(self) -> StateType:
         """Return the state of the sensor."""
-
         data = {}
         for item in self.coordinator.data.get("store").get("array"):
             if item.get("name") == self.volume_name:
                 data = item
+                break
 
         return self.entity_description.value_fn(data)
+
+    @property
+    def available(self) -> bool:
+        """Return if entity is available."""
+        return self.coordinator.last_update_success
 
 
 class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
@@ -283,8 +284,6 @@ class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         self.entity_description = description
         self._attr_unique_id = f"{coordinator.machine_id}_{disk_sn}_{description.key}"
 
-        # Set device info
-        #self._device_id = coordinator.device_id
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{coordinator.machine_id}_{disk_sn}")},
             name=f"{host_name} ({self.disk_name})",
@@ -297,10 +296,15 @@ class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
     @property
     def native_value(self) -> StateType:
         """Return the state of the sensor."""
-
         data = {}
         for item in self.coordinator.data.get("disk"):
             if item.get("name") == self.disk_name:
                 data = item
+                break
 
         return self.entity_description.value_fn(data)
+
+    @property
+    def available(self) -> bool:
+        """Return if entity is available."""
+        return self.coordinator.last_update_success

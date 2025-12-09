@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.components.light import LightEntity
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
@@ -16,26 +15,21 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from fnos import FnosClient, SystemInfo
+from fnos import FnosClient
 
-from .const import DOMAIN
-from .coordinator import FnosCoordinator
+from .const import DOMAIN  # pylint: disable=import-self
 
 _LOGGER = logging.getLogger(__name__)
 
-# TODO List the platforms that you want to support.
-# For your initial PR, limit it to 1 platform.
 _PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 @dataclass
 class FnosData:
-    """Data for the synology_dsm integration."""
+    """Data for the fnOS integration."""
 
     api: FnosClient
-    coordinator: FnosCoordinator
+    coordinator: "FnosCoordinator"
 
-# TODO Create ConfigEntry type alias with API object
-# TODO Rename type alias and update all entry annotations
 type FnosConfigEntry = ConfigEntry[FnosData]  # noqa: F821
 
 
@@ -43,16 +37,11 @@ def on_message_handler(message):
     """消息回调处理函数"""
     print(f"收到消息: {message}")
 
-# TODO Update entry annotation
 async def async_setup_entry(hass: HomeAssistant, entry: FnosConfigEntry) -> bool:
     """Set up fnOS from a config entry."""
+    from .coordinator import FnosCoordinator  # Import here to avoid circular import
 
     _LOGGER.warning("fnos.async_setup_entry called")
-
-    # TODO 1. Create API instance
-    # TODO 2. Validate the API connection (and authentication)
-    # TODO 3. Store an API object for your platforms to access
-    # entry.runtime_data = MyAPI(...)
 
     client = FnosClient()
 
@@ -88,7 +77,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: FnosConfigEntry) -> bool
     return True
 
 
-# TODO Update entry annotation
 async def async_unload_entry(hass: HomeAssistant, entry: FnosConfigEntry) -> bool:
     """Unload a config entry."""
 

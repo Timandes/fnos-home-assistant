@@ -25,20 +25,19 @@ class FnosCoordinator(DataUpdateCoordinator):
         super().__init__(
             hass,
             _LOGGER,
-            # Name of the data. For logging purposes.
             name="fnOS",
             config_entry=config_entry,
-            # Polling interval. Will only be polled if there are subscribers.
             update_interval=timedelta(seconds=30),
-            # Set always_update to `False` if the data returned from the
-            # api can be compared via `__eq__` to avoid duplicate updates
-            # being dispatched to listeners
             always_update=True
         )
         self.api = api
         self.system_info = SystemInfo(self.api)
         self.res_mon = ResourceMonitor(self.api)
         self.stor = Store(self.api)
+        self.data = None
+        self.machine_id = None
+        self.device_id = None
+        self.device_info = None
 
     async def _async_setup(self):
         """Set up the coordinator
@@ -78,10 +77,17 @@ class FnosCoordinator(DataUpdateCoordinator):
         )
 
     async def async_setup(self):
-        print("async_setup called")
+        """Set up coordinator."""
+        _LOGGER.debug("async_setup called")
 
-    def _generate_job_id(self):
+    def _generate_job_id(self) -> str:
+        """Generate a unique job ID."""
         return uuid.uuid4().hex
+
+    async def async_shutdown(self) -> None:
+        """Shutdown the coordinator."""
+        if self.api:
+            await self.api.disconnect()
 
     async def _async_update_data(self):
         """Fetch data from API endpoint.

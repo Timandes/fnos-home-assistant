@@ -16,10 +16,8 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-# TODO adjust the data schema to the data that you need
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        #vol.Required(CONF_NAME): str,
         vol.Required(CONF_HOST): str,
         vol.Required(CONF_USERNAME): str,
         vol.Required(CONF_PASSWORD): str,
@@ -27,19 +25,29 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 )
 
 
-class PlaceholderHub:
-    """Placeholder class to make tests pass.
-
-    TODO Remove this placeholder class and replace with things from your PyPI package.
-    """
+class FnosHub:
+    """Hub for fnOS integration."""
 
     def __init__(self, host: str) -> None:
         """Initialize."""
         self.host = host
+        self._client = None
 
-    async def authenticate(self, _username: str, _password: str) -> bool:
+    async def authenticate(self, username: str, password: str) -> bool:
         """Test if we can authenticate with the host."""
-        return True
+        try:
+            from fnos import FnosClient
+            self._client = FnosClient()
+            await self._client.connect(self.host)
+            result = await self._client.login(username, password)
+            return result.get("success", False)
+        except Exception:
+            return False
+
+    async def disconnect(self) -> None:
+        """Disconnect from the host."""
+        if self._client:
+            await self._client.disconnect()
 
 
 async def validate_input(_hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
@@ -47,29 +55,15 @@ async def validate_input(_hass: HomeAssistant, data: dict[str, Any]) -> dict[str
 
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
     """
-    # TODO validate the data can be used to set up a connection.
-
-    # If your PyPI package is not built with async, pass your methods
-    # to the executor:
-    # await hass.async_add_executor_job(
-    #     your_validate_func, data[CONF_USERNAME], data[CONF_PASSWORD]
-    # )
-
-    hub = PlaceholderHub(data[CONF_HOST])
+    hub = FnosHub(data[CONF_HOST])
 
     if not await hub.authenticate(data[CONF_USERNAME], data[CONF_PASSWORD]):
         raise InvalidAuth
 
-    # If you cannot connect:
-    # throw CannotConnect
-    # If the authentication is wrong:
-    # InvalidAuth
-
-    # Return info that you want to store in the config entry.
     return {}
 
 
-class ConfigFlow(ConfigFlow, domain=DOMAIN):
+class FnosConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for fnOS."""
 
     VERSION = 1
@@ -89,8 +83,8 @@ class ConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = "cannot_connect"
             except InvalidAuth:
                 errors["base"] = "invalid_auth"
-            except Exception:
-                _LOGGER.exception("Unexpected exception")
+            except Exception as exc:
+                _LOGGER.exception("Unexpected exception: %s", exc)
                 errors["base"] = "unknown"
             else:
                 return self.async_create_entry(title=friendly_name or host, data=user_input)
@@ -103,6 +97,16 @@ class ConfigFlow(ConfigFlow, domain=DOMAIN):
 class CannotConnect(HomeAssistantError):
     """Error to indicate we cannot connect."""
 
+    def __init__(self, message: str = "Cannot connect to fnOS") -> None:
+        """Initialize the error."""
+        super().__init__(message)
+        self.message = message
+
 
 class InvalidAuth(HomeAssistantError):
     """Error to indicate there is invalid auth."""
+
+    def __init__(self, message: str = "Invalid authentication") -> None:
+        """Initialize the error."""
+        super().__init__(message)
+        self.message = message
