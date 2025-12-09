@@ -63,13 +63,13 @@
         "name": "Status"
       },
       "disk_smart_status": {
-        "name": "Status (smart)"
+        "name": "Status (S.M.A.R.T)"
       },
       "disk_status": {
         "name": "Status"
       },
       "disk_temp": {
-        "name": "[%key:component::sensor::entity_component::temperature::name%]"
+        "name": "Temperature"
       },
       "memory_available_real": {
         "name": "Memory available (real)"

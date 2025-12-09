@@ -184,14 +184,26 @@ class FnosCoordinator(DataUpdateCoordinator):
         except NotConnectedError:
             await self.api.reconnect()
             disk_resp = await self.stor.list_disks()
-
-        _LOGGER.warning(
+        _LOGGER.info(
             "[%s] [%s] _async_update_data got stor.listDisk %s",
             self.config_entry.title, job_id, disk_resp
         )
 
+        try:
+            resmon_disk_resp = await self.res_mon.disk()
+        except NotConnectedError:
+            await self.api.reconnect()
+            resmon_disk_resp = await self.res_mon.disk()
+        _LOGGER.info(
+            "[%s] [%s] _async_update_data got resmon.disk %s",
+            self.config_entry.title, job_id, resmon_disk_resp
+        )
+
         for item in disk_resp.get("disk"):
             name = item.get("name")
+
+            resmon = self._find_from_resmon(resmon_disk_resp.get("data").get("disk"), name)
+            item["resmon"] = resmon
 
             try:
                 smart_resp = await self.stor.get_disk_smart(name)
@@ -202,3 +214,10 @@ class FnosCoordinator(DataUpdateCoordinator):
             item["smart"] = smart_resp.get("smart")
 
         return disk_resp.get("disk")
+
+    def _find_from_resmon(self, resmon_disks, name):
+        for item in resmon_disks:
+            if item.get("name") == name:
+                return item
+        
+        return None

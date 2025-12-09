@@ -1,0 +1,51 @@
+{
+    "data": {
+        "num": 5,
+        "disk": [
+            {
+                "name": "sda",
+                "temp": 33,
+                "standby": false,
+                "busy": 0,
+                "read": 0,
+                "write": 0
+            },
+            {
+                "name": "sde",
+                "temp": 49,
+                "standby": false,
+                "busy": 0,
+                "read": 0,
+                "write": 0
+            },
+            {
+                "name": "sdb",
+                "temp": 48,
+                "standby": false,
+                "busy": 0,
+                "read": 0,
+                "write": 0
+            },
+            {
+                "name": "sdc",
+                "temp": 49,
+                "standby": false,
+                "busy": 0,
+                "read": 0,
+                "write": 0
+            },
+            {
+                "name": "sdd",
+                "temp": 50,
+                "standby": false,
+                "busy": 0,
+                "read": 0,
+                "write": 0
+            }
+        ]
+    },
+    "reqid": "176528638230297da2cf2e985",
+    "result": "succ",
+    "rev": "0.1",
+    "req": "appcgi.resmon.disk"
+}

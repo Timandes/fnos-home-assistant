@@ -129,24 +129,20 @@ STORAGE_DISK_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
         translation_key="disk_smart_status",
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: (
-            data.get("smart").get("smart_status").get("passed")
+            "Healty" if data.get("smart").get("smart_status").get("passed") else "Unhealty"
         )
     ),
-    # FnosSensorEntityDescription(
-    #     key="disk_status",
-    #     translation_key="disk_status",
-    #     entity_category=EntityCategory.DIAGNOSTIC,
-    #     value_fn=lambda data: data.get("todo")
-    # ),
-    # FnosSensorEntityDescription(
-    #     key="disk_temp",
-    #     translation_key="disk_temp",
-    #     native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-    #     device_class=SensorDeviceClass.TEMPERATURE,
-    #     state_class=SensorStateClass.MEASUREMENT,
-    #     entity_category=EntityCategory.DIAGNOSTIC,
-    #     value_fn=lambda data: data.get("todo")
-    #),
+    FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
+        key="disk_temp",
+        translation_key="disk_temp",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: (
+            data.get("resmon").get("temp")
+        )
+    ),
 )
 
 async def async_setup_entry(
