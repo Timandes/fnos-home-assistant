@@ -41,7 +41,7 @@ class FnosHub:
             self._client = FnosClient()
             await self._client.connect(self.host)
             result = await self._client.login(username, password)
-            return result.get("success", False)
+            return result.get("result", "succ") == 'succ'
         except Exception as exc:  # pylint: disable=broad-exception-caught
             _LOGGER.exception("Authentication failed: %s", exc)
             return False
