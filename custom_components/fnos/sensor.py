@@ -18,6 +18,7 @@ from homeassistant.const import (
     EntityCategory,
     UnitOfInformation,
     UnitOfTemperature,
+    UnitOfTime,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -43,6 +44,8 @@ SENSOR_TYPES: tuple[FnosSensorEntityDescription, ...] = (
     FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="uptime",
         translation_key="uptime",
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        suggested_unit_of_measurement=UnitOfTime.HOURS,
         state_class=SensorStateClass.MEASUREMENT,
         device_class=SensorDeviceClass.DURATION,
         value_fn=lambda data: data.get("uptime").get("uptime"),
@@ -52,7 +55,7 @@ SENSOR_TYPES: tuple[FnosSensorEntityDescription, ...] = (
         translation_key="cpu_usage",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.POWER_FACTOR,
+        suggested_display_precision=2,
         value_fn=lambda data: data.get("cpu").get("cpu").get("busy").get("all"),
     ),
     FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
@@ -60,7 +63,7 @@ SENSOR_TYPES: tuple[FnosSensorEntityDescription, ...] = (
         translation_key="memory_usage",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.POWER_FACTOR,
+        suggested_display_precision=2,
         value_fn=lambda data: (
             data.get("memory").get("mem").get("used") /
             data.get("memory").get("mem").get("total") * 100.0
@@ -80,7 +83,7 @@ SENSOR_TYPES: tuple[FnosSensorEntityDescription, ...] = (
         translation_key="disk_usage",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.POWER_FACTOR,
+        suggested_display_precision=2,
         value_fn=lambda data: max(
             (item["fssize"] - item["frsize"]) / item["fssize"] * 100.0
             for item in data.get("store").get("array")
@@ -113,6 +116,7 @@ STORAGE_VOL_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
         key="volume_percentage_used",
         translation_key="volume_percentage_used",
         native_unit_of_measurement=PERCENTAGE,
+        suggested_display_precision=2,
         value_fn=lambda data: (
             (data["fssize"] - data["frsize"]) / data["fssize"] * 100.0
         )
