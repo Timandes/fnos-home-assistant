@@ -1,25 +1,19 @@
+"""fnOS sensor platform."""
 from __future__ import annotations
 
 import logging
 
 from dataclasses import dataclass
-from typing import Any
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
     SensorStateClass,
-    UndefinedType,
-    cached_property,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_DISKS,
-    CONF_HOST,
-    CONF_PASSWORD,
-    CONF_PORT,
-    CONF_USERNAME,
     PERCENTAGE,
     EntityCategory,
     UnitOfInformation,
@@ -69,7 +63,8 @@ SENSOR_TYPES: tuple[FnosSensorEntityDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         device_class=SensorDeviceClass.POWER_FACTOR,
-        value_fn=lambda data: data.get("memory").get("mem").get("used") / data.get("memory").get("mem").get("total") * 100.0,
+        value_fn=lambda data: (data.get("memory").get("mem").get("used") /
+                               data.get("memory").get("mem").get("total") * 100.0),
     ),
     FnosSensorEntityDescription(
         key="cpu_temperature",
@@ -86,7 +81,9 @@ SENSOR_TYPES: tuple[FnosSensorEntityDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         device_class=SensorDeviceClass.POWER_FACTOR,
-        value_fn=lambda data: max((item["fssize"] - item["frsize"]) / item["fssize"] * 100.0 for item in data.get("store").get("array"))
+        value_fn=lambda data: max((item["fssize"] - item["frsize"]) /
+                                  item["fssize"] * 100.0
+                                  for item in data.get("store").get("array"))
     ),
 )
 
@@ -116,7 +113,8 @@ STORAGE_VOL_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
         key="volume_percentage_used",
         translation_key="volume_percentage_used",
         native_unit_of_measurement=PERCENTAGE,
-        value_fn=lambda data: (data["fssize"] - data["frsize"]) / data["fssize"] * 100.0
+        value_fn=lambda data: ((data["fssize"] - data["frsize"]) /
+                               data["fssize"] * 100.0)
     ),
 )
 
@@ -146,12 +144,12 @@ STORAGE_DISK_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
 )
 
 async def async_setup_entry(
-    hass: HomeAssistant,
+    _hass: HomeAssistant,
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up F&OS sensor based on a config entry."""
-    _LOGGER.warn(f"[{entry.title}] sensor.async_setup_entry called")
+    _LOGGER.warning("[%s] sensor.async_setup_entry called", entry.title)
 
     data: FnosData = entry.runtime_data
     coordinator = data.coordinator
@@ -165,7 +163,8 @@ async def async_setup_entry(
         entities.extend(
             [
                 FnosVolumeSensorEntity(coordinator, description, volume)
-                for volume in entry.data.get(CONF_VOLUMES, coordinator.data.get("store").get("array"))
+                for volume in entry.data.get(CONF_VOLUMES,
+                                           coordinator.data.get("store").get("array"))
                 for description in STORAGE_VOL_SENSORS
             ]
         )
@@ -269,9 +268,10 @@ class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
-        _LOGGER.warn(f"[FnosDiskSensorEntity] disk: {disk}")
-        _LOGGER.warn(f"[FnosDiskSensorEntity] coordinator.data.get(disk): {self.coordinator.data.get("disk")}")
-        
+        _LOGGER.warning("[FnosDiskSensorEntity] disk: %s", disk)
+        _LOGGER.warning("[FnosDiskSensorEntity] coordinator.data.get(disk): %s",
+                       self.coordinator.data.get("disk"))
+
         self.disk_name = disk.get("name")
         disk_sn = disk.get("serialNumber")
         disk_model = disk.get("modelName")

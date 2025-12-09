@@ -1,27 +1,19 @@
+"""fnOS coordinator for Home Assistant."""
 from datetime import timedelta
 import logging
 import uuid
 
-import async_timeout
-
-from homeassistant.components.light import LightEntity
-from homeassistant.core import callback
-from homeassistant.exceptions import ConfigEntryAuthFailed
-from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
-    DataUpdateCoordinator,
-    UpdateFailed,
-)
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.device_registry import DeviceInfo
 
-from .const import DOMAIN
-
 from fnos import (
-    SystemInfo, 
-    ResourceMonitor, 
-    Store, 
+    SystemInfo,
+    ResourceMonitor,
+    Store,
     NotConnectedError,
 )
+
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -58,8 +50,9 @@ class FnosCoordinator(DataUpdateCoordinator):
         coordinator.async_config_entry_first_refresh.
         """
         job_id = self._generate_job_id()
-        _LOGGER.warn(f"[{self.config_entry.title}] [{job_id}] _async_setup called")
-        
+        _LOGGER.warning("[%s] [%s] _async_setup called",
+                       self.config_entry.title, job_id)
+
         self.data = await self._async_retrieve_from_fnos(job_id)
 
         machine_id_resp = await self.system_info.get_machine_id()
@@ -72,7 +65,7 @@ class FnosCoordinator(DataUpdateCoordinator):
 
         hardware_info_resp = await self.system_info.get_hardware_info()
         cpu_name = hardware_info_resp.get('data').get('cpu').get('name')
-        
+
         self.device_id = machine_id
         self.device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{machine_id}")},
@@ -97,10 +90,11 @@ class FnosCoordinator(DataUpdateCoordinator):
         so entities can quickly look up their data.
         """
         job_id = self._generate_job_id()
-        _LOGGER.warn(f"[{self.config_entry.title}] [{job_id}] _async_update_data called")
+        _LOGGER.warning("[%s] [%s] _async_update_data called",
+                       self.config_entry.title, job_id)
 
         return await self._async_retrieve_from_fnos(job_id)
-    
+
     async def _async_retrieve_from_fnos(self, job_id):
         # try:
         #     # Note: asyncio.TimeoutError and aiohttp.ClientError are already
@@ -121,39 +115,41 @@ class FnosCoordinator(DataUpdateCoordinator):
 
         try:
             host_name_resp = await self.system_info.get_host_name()
-        except NotConnectedError as err:
+        except NotConnectedError:
             await self.api.reconnect()
             host_name_resp = await self.system_info.get_host_name()
-        
+
         try:
             uptime_result = await self.system_info.get_uptime()
-        except NotConnectedError as err:
+        except NotConnectedError:
             await self.api.reconnect()
             uptime_result = await self.system_info.get_uptime()
-        
+
         try:
             cpu_result = await self.res_mon.cpu()
-        except NotConnectedError as err:
+        except NotConnectedError:
             await self.api.reconnect()
             cpu_result = await self.res_mon.cpu()
-        
+
         try:
             memory_result = await self.res_mon.memory()
-        except NotConnectedError as err:
+        except NotConnectedError:
             await self.api.reconnect()
             memory_result = await self.res_mon.memory()
 
         try:
             store_result = await self.stor.general()
-        except NotConnectedError as err:
+        except NotConnectedError:
             await self.api.reconnect()
             store_result = await self.stor.general()
-        _LOGGER.warn(f"[{self.config_entry.title}] [{job_id}] _async_update_data got stor.general {store_result}")
+        _LOGGER.warning("[%s] [%s] _async_update_data got stor.general %s",
+                       self.config_entry.title, job_id, store_result)
 
         disk_resp = await self._async_retrieve_disk_from_fnos(job_id)
 
         #print(f"[{job_id}] 系统运行时间信息5:", uptime_result)
-        _LOGGER.warn(f"[{self.config_entry.title}] [{job_id}] _async_update_data returned with {uptime_result}")
+        _LOGGER.warning("[%s] [%s] _async_update_data returned with %s",
+                       self.config_entry.title, job_id, uptime_result)
         # self.hass.states.async_set(f"{DOMAIN}.uptime", uptime_result.get('data').get('uptime'))
         return {
             "uptime": uptime_result.get('data'),
@@ -163,22 +159,23 @@ class FnosCoordinator(DataUpdateCoordinator):
             "store": store_result,
             "disk": disk_resp,
         }
-    
+
     async def _async_retrieve_disk_from_fnos(self, job_id):
         try:
             disk_resp = await self.stor.list_disks()
-        except NotConnectedError as err:
+        except NotConnectedError:
             await self.api.reconnect()
             disk_resp = await self.stor.list_disks()
 
-        _LOGGER.warn(f"[{self.config_entry.title}] [{job_id}] _async_update_data got stor.listDisk {disk_resp}")
+        _LOGGER.warning("[%s] [%s] _async_update_data got stor.listDisk %s",
+                       self.config_entry.title, job_id, disk_resp)
 
         for item in disk_resp.get("disk"):
             name = item.get("name")
 
             try:
                 smart_resp = await self.stor.get_disk_smart(name)
-            except NotConnectedError as err:
+            except NotConnectedError:
                 await self.api.reconnect()
                 smart_resp = await self.stor.get_disk_smart(name)
 

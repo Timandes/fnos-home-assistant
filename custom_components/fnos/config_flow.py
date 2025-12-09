@@ -37,12 +37,12 @@ class PlaceholderHub:
         """Initialize."""
         self.host = host
 
-    async def authenticate(self, username: str, password: str) -> bool:
+    async def authenticate(self, _username: str, _password: str) -> bool:
         """Test if we can authenticate with the host."""
         return True
 
 
-async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
+async def validate_input(_hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
     """Validate the user input allows us to connect.
 
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.

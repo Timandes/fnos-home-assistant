@@ -1,10 +1,13 @@
+"""fnOS Home Assistant integration."""
 from __future__ import annotations
 
+import asyncio
 import logging
+from dataclasses import dataclass
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.components.light import LightEntity
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
@@ -13,15 +16,10 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN
-
-from .coordinator import FnosCoordinator
-
-from dataclasses import dataclass
-from homeassistant.core import callback
-
 from fnos import FnosClient, SystemInfo
-import asyncio
+
+from .const import DOMAIN
+from .coordinator import FnosCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,7 +36,7 @@ class FnosData:
 
 # TODO Create ConfigEntry type alias with API object
 # TODO Rename type alias and update all entry annotations
-type New_NameConfigEntry = ConfigEntry[FnosData]  # noqa: F821
+type FnosConfigEntry = ConfigEntry[FnosData]  # noqa: F821
 
 
 def on_message_handler(message):
@@ -46,10 +44,10 @@ def on_message_handler(message):
     print(f"收到消息: {message}")
 
 # TODO Update entry annotation
-async def async_setup_entry(hass: HomeAssistant, entry: New_NameConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, entry: FnosConfigEntry) -> bool:
     """Set up fnOS from a config entry."""
 
-    _LOGGER.warn("fnos.async_setup_entry called")
+    _LOGGER.warning("fnos.async_setup_entry called")
 
     # TODO 1. Create API instance
     # TODO 2. Validate the API connection (and authentication)
@@ -57,10 +55,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: New_NameConfigEntry) -> 
     # entry.runtime_data = MyAPI(...)
 
     client = FnosClient()
-    
+
     # 设置消息回调
     client.on_message(on_message_handler)
-    
+
     # 连接到服务器（必须指定endpoint）
     await client.connect(entry.data.get(CONF_HOST))
 
@@ -71,8 +69,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: New_NameConfigEntry) -> 
     coordinator = FnosCoordinator(hass, entry, client)
 
     entry.runtime_data = FnosData(
-        api = client,
-        coordinator = coordinator,
+        api=client,
+        coordinator=coordinator,
     )
 
     # Fetch initial data so we have data when entities subscribe
@@ -91,9 +89,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: New_NameConfigEntry) -> 
 
 
 # TODO Update entry annotation
-async def async_unload_entry(hass: HomeAssistant, entry: New_NameConfigEntry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, entry: FnosConfigEntry) -> bool:
     """Unload a config entry."""
 
-    _LOGGER.warn("fnos.async_unload_entry called")
+    _LOGGER.warning("fnos.async_unload_entry called")
 
     return await hass.config_entries.async_unload_platforms(entry, _PLATFORMS)
