@@ -159,6 +159,12 @@ class FnosCoordinator(DataUpdateCoordinator):
             self.config_entry.title, job_id, store_result
         )
 
+        try:
+            net_result = await self.res_mon.net()
+        except NotConnectedError:
+            await self.api.reconnect()
+            net_result = await self.res_mon.net()
+
         disk_resp = await self._async_retrieve_disk_from_fnos(job_id)
 
         #print(f"[{job_id}] 系统运行时间信息5:", uptime_result)
@@ -174,6 +180,7 @@ class FnosCoordinator(DataUpdateCoordinator):
             "host_name": host_name_resp.get("data"),
             "cpu": cpu_result.get("data"),
             "memory": memory_result.get("data"),
+            "net": net_result.get("data"),
             "store": store_result,
             "disk": disk_resp,
         }

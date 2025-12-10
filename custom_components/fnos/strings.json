@@ -1,32 +1,13 @@
 {
   "config": {
-    "step": {
-      "user": {
-        "data": {
-          "host": "Host:Port",
-          "username": "User Name",
-          "password": "Password"
-        },
-        "data_description": {
-          "host": "E.G: 192.168.31.111:5666"
-        }
-      }
-    },
-    "abort": {
-      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
     }
   },
   "entity": {
     "sensor": {
-      "memory_usage": {
-        "name": "Memory Usage"
-      },
-      "disk_usage": {
-        "name": "Disk Usage"
-      },
-      "cpu_temperature": {
-        "name": "CPU Temperature"
-      },
       "cpu_15min_load": {
         "name": "CPU load average (15 min)"
       },
@@ -55,13 +36,13 @@
         "name": "Status"
       },
       "disk_smart_status": {
-        "name": "Status (S.M.A.R.T)"
+        "name": "Status (smart)"
       },
       "disk_status": {
         "name": "Status"
       },
       "disk_temp": {
-        "name": "Temperature"
+        "name": "[%key:component::sensor::entity_component::temperature::name%]"
       },
       "memory_available_real": {
         "name": "Memory available (real)"
@@ -98,6 +79,9 @@
       },
       "partition_size_used": {
         "name": "Partition used space"
+      },
+      "temperature": {
+        "name": "[%key:component::sensor::entity_component::temperature::name%]"
       },
       "uptime": {
         "name": "Last boot"
