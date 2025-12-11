@@ -29,7 +29,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 
 from .const import (
     CONF_NETWORK_IFS,
-    CONF_VOLUMES, 
+    CONF_VOLUMES,
     DOMAIN,
     ENTITY_UNIT_LOAD,
 )
@@ -53,14 +53,18 @@ UTILISATION_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
         entity_registry_enabled_default=False,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda data: data.get("cpu").get("cpu").get("busy").get("other"),
+        value_fn=lambda data: (
+            data.get("cpu").get("cpu").get("busy").get("other")
+        )
     ),
     FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="cpu_user_load",
         translation_key="cpu_user_load",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda data: data.get("cpu").get("cpu").get("busy").get("user"),
+        value_fn=lambda data: (
+            data.get("cpu").get("cpu").get("busy").get("user")
+        )
     ),
     FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="cpu_system_load",
@@ -68,14 +72,18 @@ UTILISATION_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
         entity_registry_enabled_default=False,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda data: data.get("cpu").get("cpu").get("busy").get("system"),
+        value_fn=lambda data: (
+            data.get("cpu").get("cpu").get("busy").get("system")
+        )
     ),
     FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="cpu_total_load",
         translation_key="cpu_total_load",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda data: data.get("cpu").get("cpu").get("busy").get("all"),
+        value_fn=lambda data: (
+            data.get("cpu").get("cpu").get("busy").get("all")
+        )
     ),
     FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="cpu_1min_load",
@@ -83,21 +91,27 @@ UTILISATION_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
         native_unit_of_measurement=ENTITY_UNIT_LOAD,
         suggested_display_precision=2,
         entity_registry_enabled_default=False,
-        value_fn=lambda data: data.get("cpu").get("cpu").get("loadavg").get("avg1min"),
+        value_fn=lambda data: (
+            data.get("cpu").get("cpu").get("loadavg").get("avg1min")
+        )
     ),
     FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="cpu_5min_load",
         translation_key="cpu_5min_load",
         native_unit_of_measurement=ENTITY_UNIT_LOAD,
         suggested_display_precision=2,
-        value_fn=lambda data: data.get("cpu").get("cpu").get("loadavg").get("avg5min"),
+        value_fn=lambda data: (
+            data.get("cpu").get("cpu").get("loadavg").get("avg5min")
+        )
     ),
     FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="cpu_15min_load",
         translation_key="cpu_15min_load",
         native_unit_of_measurement=ENTITY_UNIT_LOAD,
         suggested_display_precision=2,
-        value_fn=lambda data: data.get("cpu").get("cpu").get("loadavg").get("avg15min"),
+        value_fn=lambda data: (
+            data.get("cpu").get("cpu").get("loadavg").get("avg15min")
+        )
     ),
 
     FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
@@ -239,7 +253,8 @@ STORAGE_DISK_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
         translation_key="disk_smart_status",
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: (
-            "Healty" if data.get("smart").get("smart_status").get("passed") else "Unhealty"
+            "Healty" if data.get("smart").get("smart_status").get("passed")
+            else "Unhealty"
         )
     ),
     FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
@@ -490,7 +505,9 @@ class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         """Return if entity is available."""
         return self.coordinator.last_update_success
 
-class FnosNetworkIfsSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
+class FnosNetworkIfsSensorEntity(
+    CoordinatorEntity[FnosCoordinator], SensorEntity
+):
     """Representation of a network ifs sensor in fnOS."""
 
     entity_description: FnosSensorEntityDescription

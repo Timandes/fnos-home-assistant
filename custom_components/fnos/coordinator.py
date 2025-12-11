@@ -209,7 +209,9 @@ class FnosCoordinator(DataUpdateCoordinator):
         for item in disk_resp.get("disk"):
             name = item.get("name")
 
-            resmon = self._find_from_resmon(resmon_disk_resp.get("data").get("disk"), name)
+            resmon = self._find_from_resmon(
+                resmon_disk_resp.get("data").get("disk"), name
+            )
             item["resmon"] = resmon
 
             try:
@@ -226,5 +228,5 @@ class FnosCoordinator(DataUpdateCoordinator):
         for item in resmon_disks:
             if item.get("name") == name:
                 return item
-        
+
         return None
