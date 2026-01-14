@@ -50,6 +50,9 @@
       "disk_temp": {
         "name": "[%key:component::sensor::entity_component::temperature::name%]"
       },
+      "disk_reallocated_sector_count": {
+        "name": "Reallocated sector/Retired block count"
+      },
       "memory_available_real": {
         "name": "Memory available (real)"
       },

@@ -21,7 +21,10 @@ from .const import DOMAIN  # pylint: disable=import-self
 
 _LOGGER = logging.getLogger(__name__)
 
-_PLATFORMS: list[Platform] = [Platform.SENSOR]
+_PLATFORMS: list[Platform] = [
+    Platform.SENSOR,
+    Platform.BINARY_SENSOR,
+]
 
 @dataclass
 class FnosData:

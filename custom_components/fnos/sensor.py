@@ -252,10 +252,13 @@ STORAGE_DISK_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
         key="disk_smart_status",
         translation_key="disk_smart_status",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: (
-            "Healty" if data.get("smart").get("smart_status").get("passed")
-            else "Unhealty"
-        )
+        value_fn=lambda entity, data: entity.extract_disk_smart_status(data)
+    ),
+    FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
+        key="disk_reallocated_sector_count",
+        translation_key="disk_reallocated_sector_count",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda entity, data: entity.extract_reallocated_sector_count(data)
     ),
     FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="disk_temp",
@@ -264,7 +267,7 @@ STORAGE_DISK_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: (
+        value_fn=lambda entity, data: (
             data.get("resmon").get("temp")
         )
     ),
@@ -498,12 +501,34 @@ class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
                 data = item
                 break
 
-        return self.entity_description.value_fn(data)
+        return self.entity_description.value_fn(self, data)
 
     @property
     def available(self) -> bool:
         """Return if entity is available."""
         return self.coordinator.last_update_success
+
+    def extract_reallocated_sector_count(self, data):
+        """Extract reallocated_sector_count from S.M.A.R.T."""
+        attrs = data.get("smart").get("ata_smart_attributes")
+        if attrs is None:
+            _LOGGER.warning("No SMART info was found for disk %s", data.get("name"))
+            return -1
+
+        for item in attrs.get("table"):
+            # TODO: 某些 SSD好像没有05
+            if (item.get("id") == 5):
+                return item.get("raw").get("value")
+
+        return -1
+
+    def extract_disk_smart_status(self, data) -> str:
+        """Extract disk_smart_status."""
+        if data.get("smart").get("smartctl").get("exit_status") != 0:
+            return "Unknown"
+
+        return "Healty" if data.get("smart").get("smart_status").get("passed") else "Unhealty"
+
 
 class FnosNetworkIfsSensorEntity(
     CoordinatorEntity[FnosCoordinator], SensorEntity
