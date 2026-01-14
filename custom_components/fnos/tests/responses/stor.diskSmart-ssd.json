@@ -36,7 +36,7 @@
         },
         "model_family": "Samsung based SSDs",
         "model_name": "Samsung SSD 840 EVO 120GB",
-        "serial_number": "S1R3NSAF823749T",
+        "serial_number": "baz",
         "wwn": {
             "naa": 5,
             "oui": 9528,

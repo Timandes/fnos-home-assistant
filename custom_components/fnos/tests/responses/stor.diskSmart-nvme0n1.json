@@ -32,7 +32,7 @@
             "protocol": "NVMe"
         },
         "model_name": "WUS4BB076D7P3E3",
-        "serial_number": "A0604449",
+        "serial_number": "foo",
         "firmware_version": "R1110012",
         "nvme_pci_vendor": {
             "id": 7062,

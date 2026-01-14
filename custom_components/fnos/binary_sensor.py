@@ -55,7 +55,7 @@ STORAGE_DISK_BINARY_SENSORS: tuple[FnosBinarySensorEntityDescription, ...] = (
         translation_key="disk_below_remain_life_thr",
         device_class=BinarySensorDeviceClass.SAFETY,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda entity, data: not data.get("smart").get("smart_status").get("passed")
+        value_fn=lambda entity, data: entity.cal_disk_below_remain_life_thr(data)
     ),
 )
 
@@ -217,3 +217,32 @@ class FnosDiskBinarySensorEntity(CoordinatorEntity[FnosCoordinator], BinarySenso
     def _cal_disk_exceed_bad_sector_thr_for_nvme_ssd(self, attrs) -> bool:
         """Calculate disk_exceed_bad_sector_thr for NVME SSDs."""
         return attrs.get('available_spare') < attrs.get('available_spare_threshold')
+
+    def cal_disk_below_remain_life_thr(self, data) -> bool:
+        """Calculate disk_below_remain_life_thr according to README."""
+        attrs = data.get("smart").get("ata_smart_attributes")
+        if attrs is not None:
+            return self._cal_disk_below_remain_life_thr_for_normal_hdd(attrs)
+
+        attrs = data.get("smart").get("nvme_smart_health_information_log")
+        if attrs is not None:
+            return self._cal_disk_below_remain_life_thr_for_nvme_ssd(attrs)
+
+        _LOGGER.warning("No SMART info was found for disk %s", data.get("name"))
+
+        return False
+
+    def _cal_disk_below_remain_life_thr_for_normal_hdd(self, attrs) -> bool:
+        """Calculate disk_below_remain_life_thr for normal HDDs."""
+        for item in attrs.get("table"):
+            if item.get("id") == 5:
+                return item.get("raw").get("value") > 0
+
+        return False
+
+    def _cal_disk_below_remain_life_thr_for_nvme_ssd(self, attrs) -> bool:
+        """Calculate disk_below_remain_life_thr for NVME SSDs."""
+        percentage_used = attrs.get('percentage_used')
+        if percentage_used is None:
+            return False
+        return percentage_used >= 50

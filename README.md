@@ -51,3 +51,14 @@ cd fnos-home-assistant
 - [许可证](LICENSE)
 - 开发文档： https://developers.home-assistant.io/docs/creating_component_index
 
+## 硬盘健康监测算法说明
+
+本组件提供以下四个硬盘健康监测指标：
+
+| 指标名称 | 算法逻辑 |
+|---------|---------|
+| **Status (S.M.A.R.T)** | 定义硬盘的总体健康状况。直接显示 S.M.A.R.T. 的 `smart_status.passed` 字段。如果 `passed` 为 `true`，显示 `"Healty"`，表示硬盘健康状态正常；如果 `passed` 为 `false`，显示 `"Unhealty"`，表示硬盘健康状态异常；如果无法获取S.M.A.R.T.信息，显示 `"Unknown"`。 |
+| **Below min remaining life** | 着重检查硬盘的损耗是否还在可控范围内。根据硬盘类型及日常运维经验采用不同算法：<br>• **普通 HDD**：检查 S.M.A.R.T. 属性 ID=5（重映射扇区计数）的 `raw.value` 是否大于0。如果 `raw.value > 0`，则触发告警。<br>• **NVMe SSD**：检查 `percentage_used`（已用寿命百分比）是否高于50。如果 `percentage_used >= 50`，则触发告警。<br>• **SAS HDD**：检查 `smart.scsi_grown_defect_list` 是否大于0。如果 `smart.scsi_grown_defect_list > 0`，则触发告警。 |
+| **Exceeded max bad sectors** | 根据硬盘类型采用不同算法：<br>• **普通 HDD**：检查 S.M.A.R.T. 属性 ID=5（重映射扇区计数）的 `value` 是否低于 `thresh`（阈值）。如果 `value < thresh`，则触发告警。<br>• **NVMe SSD**：检查 `available_spare`（可用备用空间）是否低于 `available_spare_threshold`（可用备用空间阈值）。如果 `available_spare < available_spare_threshold`，则触发告警。<br>• **SAS HDD**：检查 `smart.scsi_grown_defect_list` 是否大于0。如果 `smart.scsi_grown_defect_list > 0`，则触发告警（此行为存疑，待确认）。 |
+| **Reallocated sector/Retired block/Grown Defect count** | 提取 S.M.A.R.T. 属性 ID=5（重映射扇区计数）的 `raw.value` 字段，显示硬盘的重映射扇区数量（对于 SSD 则为已退役块数量）。该数值越大，表示硬盘健康状况越差。如果硬盘不支持或没有此属性（例如某些 NVMe SSD），则返回 `-1`。 |
+

@@ -1,0 +1,110 @@
+{
+    "smart": {
+        "json_format_version": [
+            1,
+            0
+        ],
+        "smartctl": {
+            "version": [
+                7,
+                3
+            ],
+            "svn_revision": "5338",
+            "platform_info": "x86_64-linux-6.12.18-trim",
+            "build_info": "(local build)",
+            "argv": [
+                "smartctl",
+                "-a",
+                "--json",
+                "/dev/sdb",
+                "--nocheck=standby"
+            ],
+            "exit_status": 0
+        },
+        "local_time": {
+            "time_t": 1768353542,
+            "asctime": "Wed Jan 14 09:19:02 2026 CST"
+        },
+        "device": {
+            "name": "/dev/sdb",
+            "info_name": "/dev/sdb",
+            "type": "scsi",
+            "protocol": "SCSI"
+        },
+        "scsi_vendor": "SEAGATE",
+        "scsi_product": "ST33000650SS",
+        "scsi_model_name": "SEAGATE ST33000650SS",
+        "scsi_revision": "0004",
+        "scsi_version": "SPC-4",
+        "user_capacity": {
+            "blocks": 5860533168,
+            "bytes": 3000592982016
+        },
+        "logical_block_size": 512,
+        "rotation_rate": 7200,
+        "form_factor": {
+            "scsi_value": 2,
+            "name": "3.5 inches"
+        },
+        "logical_unit_id": "0x5000c50041996017",
+        "serial_number": "bar",
+        "device_type": {
+            "scsi_terminology": "Peripheral Device Type [PDT]",
+            "scsi_value": 0,
+            "name": "disk"
+        },
+        "scsi_transport_protocol": {
+            "name": "SAS (SPL-4)",
+            "value": 6
+        },
+        "smart_support": {
+            "available": true,
+            "enabled": true
+        },
+        "temperature_warning": {
+            "enabled": true
+        },
+        "smart_status": {
+            "passed": true
+        },
+        "temperature": {
+            "current": 37,
+            "drive_trip": 68
+        },
+        "power_on_time": {
+            "hours": 69638,
+            "minutes": 39
+        },
+        "scsi_start_stop_cycle_counter": {
+            "year_of_manufacture": "2012",
+            "week_of_manufacture": "17",
+            "specified_cycle_count_over_device_lifetime": 10000,
+            "accumulated_start_stop_cycles": 306,
+            "specified_load_unload_count_over_device_lifetime": 300000,
+            "accumulated_load_unload_cycles": 306
+        },
+        "scsi_grown_defect_list": 0,
+        "scsi_error_counter_log": {
+            "read": {
+                "errors_corrected_by_eccfast": 301708335,
+                "errors_corrected_by_eccdelayed": 0,
+                "errors_corrected_by_rereads_rewrites": 0,
+                "total_errors_corrected": 301708335,
+                "correction_algorithm_invocations": 0,
+                "gigabytes_processed": "39.123",
+                "total_uncorrected_errors": 0
+            },
+            "write": {
+                "errors_corrected_by_eccfast": 0,
+                "errors_corrected_by_eccdelayed": 0,
+                "errors_corrected_by_rereads_rewrites": 0,
+                "total_errors_corrected": 0,
+                "correction_algorithm_invocations": 0,
+                "gigabytes_processed": "509.615",
+                "total_uncorrected_errors": 0
+            }
+        }
+    },
+    "result": "succ",
+    "reqid": "6966ef066966eeef0000223a0047"
+}
