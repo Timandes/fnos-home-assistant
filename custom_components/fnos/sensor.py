@@ -256,7 +256,7 @@ STORAGE_DISK_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
     ),
     FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="disk_reallocated_sector_count",
-        translation_key="disk_reallocated_sector_count",
+        translation_key="disk_reallocated_sector_grown_defect_count",
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda entity, data: entity.extract_reallocated_sector_count(data)
     ),
@@ -511,15 +511,18 @@ class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
     def extract_reallocated_sector_count(self, data):
         """Extract reallocated_sector_count from S.M.A.R.T."""
         attrs = data.get("smart").get("ata_smart_attributes")
-        if attrs is None:
-            _LOGGER.warning("No SMART info was found for disk %s", data.get("name"))
+        if attrs is not None:
+            for item in attrs.get("table"):
+                # TODO: 某些 SSD好像没有05
+                if (item.get("id") == 5):
+                    return item.get("raw").get("value")
             return -1
 
-        for item in attrs.get("table"):
-            # TODO: 某些 SSD好像没有05
-            if (item.get("id") == 5):
-                return item.get("raw").get("value")
+        grown_defect_list = data.get("smart").get("scsi_grown_defect_list")
+        if grown_defect_list is not None:
+            return grown_defect_list
 
+        _LOGGER.warning("No SMART info was found for disk %s", data.get("name"))
         return -1
 
     def extract_disk_smart_status(self, data) -> str:

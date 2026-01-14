@@ -197,6 +197,10 @@ class FnosDiskBinarySensorEntity(CoordinatorEntity[FnosCoordinator], BinarySenso
         if attrs is not None:
             return self._cal_disk_exceed_bad_sector_thr_for_nvme_ssd(attrs)
 
+        grown_defect_list = data.get("smart").get("scsi_grown_defect_list")
+        if grown_defect_list is not None:
+            return self._cal_disk_exceed_bad_sector_thr_for_sas_hdd(grown_defect_list)
+
         _LOGGER.warning("No SMART info was found for disk %s", data.get("name"))
 
         return False
@@ -218,6 +222,10 @@ class FnosDiskBinarySensorEntity(CoordinatorEntity[FnosCoordinator], BinarySenso
         """Calculate disk_exceed_bad_sector_thr for NVME SSDs."""
         return attrs.get('available_spare') < attrs.get('available_spare_threshold')
 
+    def _cal_disk_exceed_bad_sector_thr_for_sas_hdd(self, grown_defect_list) -> bool:
+        """Calculate disk_exceed_bad_sector_thr for SAS HDDs."""
+        return grown_defect_list > 0
+
     def cal_disk_below_remain_life_thr(self, data) -> bool:
         """Calculate disk_below_remain_life_thr according to README."""
         attrs = data.get("smart").get("ata_smart_attributes")
@@ -227,6 +235,10 @@ class FnosDiskBinarySensorEntity(CoordinatorEntity[FnosCoordinator], BinarySenso
         attrs = data.get("smart").get("nvme_smart_health_information_log")
         if attrs is not None:
             return self._cal_disk_below_remain_life_thr_for_nvme_ssd(attrs)
+
+        grown_defect_list = data.get("smart").get("scsi_grown_defect_list")
+        if grown_defect_list is not None:
+            return self._cal_disk_below_remain_life_thr_for_sas_hdd(grown_defect_list)
 
         _LOGGER.warning("No SMART info was found for disk %s", data.get("name"))
 
@@ -246,3 +258,7 @@ class FnosDiskBinarySensorEntity(CoordinatorEntity[FnosCoordinator], BinarySenso
         if percentage_used is None:
             return False
         return percentage_used >= 50
+
+    def _cal_disk_below_remain_life_thr_for_sas_hdd(self, grown_defect_list) -> bool:
+        """Calculate disk_below_remain_life_thr for SAS HDDs."""
+        return grown_defect_list > 0

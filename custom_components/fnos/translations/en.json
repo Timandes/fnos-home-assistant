@@ -74,8 +74,8 @@
       "disk_temp": {
         "name": "Temperature"
       },
-      "disk_reallocated_sector_count": {
-        "name": "Reallocated sector/Retired block count"
+      "disk_reallocated_sector_grown_defect_count": {
+        "name": "Reallocated sector/Retired block/Grown Defect count"
       },
       "memory_available_real": {
         "name": "Memory available (real)"
