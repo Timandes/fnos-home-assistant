@@ -1,0 +1,25 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release-zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ZIP Component Dir
+        run: |
+          cd ${{ github.workspace }}/custom_components/fnos
+          zip -r fnos.zip ./
+
+      - name: Upload zip to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ github.workspace }}/custom_components/fnos/fnos.zip
+          asset_name: fnos.zip
+          tag: ${{ github.ref }}
+          overwrite: true
