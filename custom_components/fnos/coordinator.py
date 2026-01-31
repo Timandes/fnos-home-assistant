@@ -89,7 +89,7 @@ class FnosCoordinator(DataUpdateCoordinator):
     async def async_shutdown(self) -> None:
         """Shutdown the coordinator."""
         if self.api:
-            await self.api.disconnect()
+            await self.api.close()
 
     async def _async_update_data(self):
         """Fetch data from API endpoint.
