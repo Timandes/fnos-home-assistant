@@ -57,6 +57,7 @@ cd fnos-home-assistant
 ## 文档
 
 - [许可证](LICENSE)
+- [更新日志](../CHANGELOG.md)
 - 开发文档： https://developers.home-assistant.io/docs/creating_component_index
 
 ## 硬盘健康监测算法说明
