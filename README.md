@@ -21,8 +21,16 @@ cd fnos-home-assistant
 推荐使用此方法安装这个集成组件，可以及时同步最新的功能。
 
 
+### 方法 2: [HACS](https://hacs.xyz/)
 
-### 方法 2：通过 [Samba](https://github.com/home-assistant/addons/tree/master/samba) 或 [FTPS](https://github.com/hassio-addons/addon-ftp) 手动安装
+一键从 HACS 安装集成：
+
+[![打开您的 Home Assistant 实例并打开 Home Assistant 社区商店内的飞牛fnOS集成。](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Timandes&repository=fnos-home-assistant&category=integration)
+
+或者，HACS > 在搜索框中输入 **fnos** > 点击 **飞牛fnOS** ，进入集成详情页  > DOWNLOAD
+
+
+### 方法 3：通过 [Samba](https://github.com/home-assistant/addons/tree/master/samba) 或 [FTPS](https://github.com/hassio-addons/addon-ftp) 手动安装
 
 下载并将 `custom_components/fnos` 文件夹复制到 Home Assistant 的 `config/custom_components` 文件夹下。
 
