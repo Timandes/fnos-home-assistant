@@ -4,32 +4,20 @@ from __future__ import annotations
 from dataclasses import dataclass
 import logging
 
-from homeassistant.components.binary_sensor import BinarySensorDeviceClass, BinarySensorEntity, BinarySensorEntityDescription
-from homeassistant.components.binary_sensor.device_trigger import CONF_NOT_UNSAFE, CONF_UNSAFE
-from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorEntity,
-    SensorEntityDescription,
-    SensorStateClass,
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+    BinarySensorEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (
-    CONF_DISKS,
-    PERCENTAGE,
-    EntityCategory,
-    UnitOfDataRate,
-    UnitOfInformation,
-    UnitOfTemperature,
-    UnitOfTime,
-)
+from homeassistant.const import CONF_DISKS, EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import FnosData
-from .const import CONF_NETWORK_IFS, CONF_VOLUMES, DOMAIN, ENTITY_UNIT_LOAD
+from .const import DOMAIN
 from .coordinator import FnosCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -43,24 +31,28 @@ class FnosBinarySensorEntityDescription(BinarySensorEntityDescription):
 
 
 STORAGE_DISK_BINARY_SENSORS: tuple[FnosBinarySensorEntityDescription, ...] = (
-    FnosBinarySensorEntityDescription(
+    FnosBinarySensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="disk_exceed_bad_sector_thr",
         translation_key="disk_exceed_bad_sector_thr",
         device_class=BinarySensorDeviceClass.SAFETY,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda entity, data: entity.cal_disk_exceed_bad_sector_thr(data)
+        value_fn=lambda entity, data: (
+            entity.cal_disk_exceed_bad_sector_thr(data)
+        ),
     ),
-    FnosBinarySensorEntityDescription(
+    FnosBinarySensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="disk_below_remain_life_thr",
         translation_key="disk_below_remain_life_thr",
         device_class=BinarySensorDeviceClass.SAFETY,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda entity, data: entity.cal_disk_below_remain_life_thr(data)
+        value_fn=lambda entity, data: (
+            entity.cal_disk_below_remain_life_thr(data)
+        ),
     ),
 )
 
 SECURITY_BINARY_SENSORS: tuple[FnosBinarySensorEntityDescription, ...] = (
-    FnosBinarySensorEntityDescription(
+    FnosBinarySensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="status",
         translation_key="status",
         device_class=BinarySensorDeviceClass.SAFETY,
@@ -99,7 +91,9 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class FnosBinarySensorEntity(CoordinatorEntity[FnosCoordinator], BinarySensorEntity):
+class FnosBinarySensorEntity(
+    CoordinatorEntity[FnosCoordinator], BinarySensorEntity
+):
     """Representation of a fnOS binary sensor."""
 
     entity_description: FnosBinarySensorEntityDescription
@@ -129,7 +123,9 @@ class FnosBinarySensorEntity(CoordinatorEntity[FnosCoordinator], BinarySensorEnt
         return self.coordinator.last_update_success
 
 
-class FnosDiskBinarySensorEntity(CoordinatorEntity[FnosCoordinator], BinarySensorEntity):
+class FnosDiskBinarySensorEntity(
+    CoordinatorEntity[FnosCoordinator], BinarySensorEntity
+):
     """Representation of a disk binary sensor in fnOS."""
 
     entity_description: FnosBinarySensorEntityDescription
@@ -199,7 +195,9 @@ class FnosDiskBinarySensorEntity(CoordinatorEntity[FnosCoordinator], BinarySenso
 
         grown_defect_list = data.get("smart").get("scsi_grown_defect_list")
         if grown_defect_list is not None:
-            return self._cal_disk_exceed_bad_sector_thr_for_sas_hdd(grown_defect_list)
+            return self._cal_disk_exceed_bad_sector_thr_for_sas_hdd(
+                grown_defect_list
+            )
 
         _LOGGER.warning("No SMART info was found for disk %s", data.get("name"))
 
@@ -209,7 +207,7 @@ class FnosDiskBinarySensorEntity(CoordinatorEntity[FnosCoordinator], BinarySenso
         """Calculate disk_exceed_bad_sector_thr for normal HDDs."""
         for item in attrs.get("table"):
             # TODO: 某些 SSD好像没有05
-            if (item.get("id") == 5):
+            if item.get("id") == 5:
                 threshold = item.get("thresh")
                 if threshold is None:
                     threshold = 100
@@ -220,9 +218,13 @@ class FnosDiskBinarySensorEntity(CoordinatorEntity[FnosCoordinator], BinarySenso
 
     def _cal_disk_exceed_bad_sector_thr_for_nvme_ssd(self, attrs) -> bool:
         """Calculate disk_exceed_bad_sector_thr for NVME SSDs."""
-        return attrs.get('available_spare') < attrs.get('available_spare_threshold')
+        spare = attrs.get("available_spare")
+        threshold = attrs.get("available_spare_threshold")
+        return spare < threshold
 
-    def _cal_disk_exceed_bad_sector_thr_for_sas_hdd(self, grown_defect_list) -> bool:
+    def _cal_disk_exceed_bad_sector_thr_for_sas_hdd(
+        self, grown_defect_list
+    ) -> bool:
         """Calculate disk_exceed_bad_sector_thr for SAS HDDs."""
         return grown_defect_list > 0
 
@@ -238,7 +240,9 @@ class FnosDiskBinarySensorEntity(CoordinatorEntity[FnosCoordinator], BinarySenso
 
         grown_defect_list = data.get("smart").get("scsi_grown_defect_list")
         if grown_defect_list is not None:
-            return self._cal_disk_below_remain_life_thr_for_sas_hdd(grown_defect_list)
+            return self._cal_disk_below_remain_life_thr_for_sas_hdd(
+                grown_defect_list
+            )
 
         _LOGGER.warning("No SMART info was found for disk %s", data.get("name"))
 
@@ -254,11 +258,13 @@ class FnosDiskBinarySensorEntity(CoordinatorEntity[FnosCoordinator], BinarySenso
 
     def _cal_disk_below_remain_life_thr_for_nvme_ssd(self, attrs) -> bool:
         """Calculate disk_below_remain_life_thr for NVME SSDs."""
-        percentage_used = attrs.get('percentage_used')
+        percentage_used = attrs.get("percentage_used")
         if percentage_used is None:
             return False
         return percentage_used >= 50
 
-    def _cal_disk_below_remain_life_thr_for_sas_hdd(self, grown_defect_list) -> bool:
+    def _cal_disk_below_remain_life_thr_for_sas_hdd(
+        self, grown_defect_list
+    ) -> bool:
         """Calculate disk_below_remain_life_thr for SAS HDDs."""
         return grown_defect_list > 0

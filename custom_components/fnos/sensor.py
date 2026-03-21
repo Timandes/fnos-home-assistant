@@ -258,7 +258,9 @@ STORAGE_DISK_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
         key="disk_reallocated_sector_count",
         translation_key="disk_reallocated_sector_grown_defect_count",
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda entity, data: entity.extract_reallocated_sector_count(data)
+        value_fn=lambda entity, data: (
+            entity.extract_reallocated_sector_count(data)
+        ),
     ),
     FnosSensorEntityDescription(  # pylint: disable=unexpected-keyword-arg
         key="disk_temp",
@@ -514,7 +516,7 @@ class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         if attrs is not None:
             for item in attrs.get("table"):
                 # TODO: 某些 SSD好像没有05
-                if (item.get("id") == 5):
+                if item.get("id") == 5:
                     return item.get("raw").get("value")
             return -1
 
@@ -530,7 +532,8 @@ class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         if data.get("smart").get("smartctl").get("exit_status") != 0:
             return "Unknown"
 
-        return "Healty" if data.get("smart").get("smart_status").get("passed") else "Unhealty"
+        passed = data.get("smart").get("smart_status").get("passed")
+        return "Healthy" if passed else "Unhealthy"
 
 
 class FnosNetworkIfsSensorEntity(
