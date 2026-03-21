@@ -8,6 +8,10 @@
 >
 > - Core $\geq$ 2024.4.4
 > - Operating System $\geq$ 13.0
+>
+> Python 版本要求：$\geq$ 3.12.0
+>
+> 原因：Home Assistant Core 2024.4.4 要求 Python >= 3.12.0（参见 [pyproject.toml](https://github.com/home-assistant/core/blob/2024.4.4/pyproject.toml) 中的 `requires-python` 配置项）。
 
 ### 方法 1：使用 git clone 命令从 GitHub 下载
 
