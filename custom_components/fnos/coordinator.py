@@ -1,7 +1,6 @@
 """fnOS coordinator for Home Assistant."""
 from datetime import timedelta
 import logging
-import uuid
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -175,14 +174,14 @@ class FnosDiskCoordinator(DataUpdateCoordinator):
             await self.api.reconnect()
             store_result = await self.stor.general()
 
-        disk_resp = await self._async_retrieve_disk(store_result)
+        disk_resp = await self._async_retrieve_disk()
 
         return {
             "store": store_result,
             "disk": disk_resp,
         }
 
-    async def _async_retrieve_disk(self, store_result):
+    async def _async_retrieve_disk(self):
         """Fetch disk list with SMART and IO data."""
         try:
             disk_resp = await self.stor.list_disks()

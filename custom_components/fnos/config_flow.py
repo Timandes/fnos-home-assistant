@@ -114,7 +114,7 @@ class FnosConfigFlow(ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry: ConfigEntry) -> FnosOptionsFlow:
+    def async_get_options_flow(config_entry: ConfigEntry) -> FnosOptionsFlow:  # pylint: disable=unused-argument
         """Get the options flow for this handler."""
         return FnosOptionsFlow()
 
