@@ -34,7 +34,7 @@ from .const import (
     ENTITY_UNIT_LOAD,
 )
 from . import FnosData
-from .coordinator import FnosCoordinator
+from .coordinator import FnosSystemCoordinator, FnosDiskCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -316,53 +316,54 @@ async def async_setup_entry(
     _LOGGER.debug("[%s] sensor.async_setup_entry called", entry.title)
 
     data: FnosData = entry.runtime_data
-    coordinator = data.coordinator
+    system_coord = data.coordinator
+    disk_coord = data.disk_coordinator
 
     entities = [
-        FnosSensorEntity(coordinator, description)
+        FnosSensorEntity(system_coord, description)
         for description in UTILISATION_SENSORS
     ]
     entities.extend([
-        FnosSensorEntity(coordinator, description)
+        FnosSensorEntity(system_coord, description)
         for description in INFORMATION_SENSORS
     ])
     entities.extend([
-        FnosSensorEntity(coordinator, description)
+        FnosSensorEntity(system_coord, description)
         for description in HWSENSORS
     ])
 
     # Handle all volumes
-    if coordinator.data.get("store").get("array"):
+    if disk_coord.data.get("store").get("array"):
         entities.extend(
             [
-                FnosVolumeSensorEntity(coordinator, description, volume)
+                FnosVolumeSensorEntity(disk_coord, description, volume)
                 for volume in entry.data.get(
                     CONF_VOLUMES,
-                    coordinator.data.get("store").get("array")
+                    disk_coord.data.get("store").get("array")
                 )
                 for description in STORAGE_VOL_SENSORS
             ]
         )
 
     # Handle all disks
-    if coordinator.data.get("disk"):
+    if disk_coord.data.get("disk"):
         entities.extend(
             [
-                FnosDiskSensorEntity(coordinator, description, disk)
+                FnosDiskSensorEntity(disk_coord, description, disk)
                 for disk in entry.data.get(
-                    CONF_DISKS, coordinator.data.get("disk")
+                    CONF_DISKS, disk_coord.data.get("disk")
                 )
                 for description in STORAGE_DISK_SENSORS
             ]
         )
 
     # Handle all network ifs
-    if coordinator.data.get("net").get("ifs"):
+    if system_coord.data.get("net").get("ifs"):
         entities.extend(
             [
-                FnosNetworkIfsSensorEntity(coordinator, description, ifs)
+                FnosNetworkIfsSensorEntity(system_coord, description, ifs)
                 for ifs in entry.data.get(
-                    CONF_NETWORK_IFS, coordinator.data.get("net").get("ifs")
+                    CONF_NETWORK_IFS, system_coord.data.get("net").get("ifs")
                 )
                 for description in NETWORK_IFS_SENSORS
             ]
@@ -371,7 +372,7 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class FnosSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
+class FnosSensorEntity(CoordinatorEntity[FnosSystemCoordinator], SensorEntity):
     """Representation of a fnOS sensor."""
 
     entity_description: FnosSensorEntityDescription
@@ -379,7 +380,7 @@ class FnosSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
 
     def __init__(
         self,
-        coordinator: FnosCoordinator,
+        coordinator,
         description: FnosSensorEntityDescription,
     ) -> None:
         """Initialize the sensor."""
@@ -401,7 +402,7 @@ class FnosSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         return self.coordinator.last_update_success
 
 
-class FnosVolumeSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
+class FnosVolumeSensorEntity(CoordinatorEntity[FnosDiskCoordinator], SensorEntity):
     """Representation of a volume sensor in fnOS."""
 
     entity_description: FnosSensorEntityDescription
@@ -409,7 +410,7 @@ class FnosVolumeSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
 
     def __init__(
         self,
-        coordinator: FnosCoordinator,
+        coordinator,
         description: FnosSensorEntityDescription,
         volume
     ) -> None:
@@ -417,9 +418,8 @@ class FnosVolumeSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         super().__init__(coordinator)
         self.volume_name = volume.get("name")
         volume_uuid = volume.get("uuid")
-        trim_version = self.coordinator.data["host_name"].get("trimVersion")
-        # hostName实际上“设置”页可修改的“设备名称”
-        host_name = self.coordinator.data.get("host_name").get("hostName")
+        trim_version = self.coordinator.host_name_data.get("trimVersion")
+        host_name = self.coordinator.host_name_data.get("hostName")
 
         self.entity_description = description
         self._attr_unique_id = (
@@ -452,7 +452,7 @@ class FnosVolumeSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         return self.coordinator.last_update_success
 
 
-class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
+class FnosDiskSensorEntity(CoordinatorEntity[FnosDiskCoordinator], SensorEntity):
     """Representation of a disk sensor in fnOS."""
 
     entity_description: FnosSensorEntityDescription
@@ -460,7 +460,7 @@ class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
 
     def __init__(
         self,
-        coordinator: FnosCoordinator,
+        coordinator,
         description: FnosSensorEntityDescription,
         disk
     ) -> None:
@@ -476,9 +476,8 @@ class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
         disk_sn = disk.get("serialNumber")
         disk_model = disk.get("modelName")
         disk_vendor = disk.get("vendor")
-        trim_version = self.coordinator.data["host_name"].get("trimVersion")
-        # hostName实际上“设置”页可修改的“设备名称”
-        host_name = self.coordinator.data.get("host_name").get("hostName")
+        trim_version = self.coordinator.host_name_data.get("trimVersion")
+        host_name = self.coordinator.host_name_data.get("hostName")
 
         self.entity_description = description
         self._attr_unique_id = (
@@ -541,7 +540,7 @@ class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
 
 
 class FnosNetworkIfsSensorEntity(
-    CoordinatorEntity[FnosCoordinator], SensorEntity
+    CoordinatorEntity[FnosSystemCoordinator], SensorEntity
 ):
     """Representation of a network ifs sensor in fnOS."""
 
@@ -550,7 +549,7 @@ class FnosNetworkIfsSensorEntity(
 
     def __init__(
         self,
-        coordinator: FnosCoordinator,
+        coordinator,
         description: FnosSensorEntityDescription,
         ifs
     ) -> None:
@@ -563,9 +562,8 @@ class FnosNetworkIfsSensorEntity(
         )
 
         self.ifs_name = ifs.get("name")
-        trim_version = self.coordinator.data["host_name"].get("trimVersion")
-        # hostName实际上“设置”页可修改的“设备名称”
-        host_name = self.coordinator.data.get("host_name").get("hostName")
+        trim_version = self.coordinator.host_name_data.get("trimVersion")
+        host_name = self.coordinator.host_name_data.get("hostName")
 
         self.entity_description = description
         self._attr_unique_id = (

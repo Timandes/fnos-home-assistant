@@ -7,12 +7,23 @@ from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlow,
+)
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_NAME
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 
-from .const import DOMAIN
+from .const import (
+    DOMAIN,
+    DEFAULT_SCAN_INTERVAL,
+    DEFAULT_DISK_SCAN_INTERVAL,
+    CONF_SCAN_INTERVAL,
+    CONF_DISK_SCAN_INTERVAL,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -56,11 +67,7 @@ async def validate_input(
     hass: HomeAssistant,  # pylint: disable=unused-argument
     data: dict[str, Any]
 ) -> dict[str, Any]:
-    """Validate the user input allows us to connect.
-
-    Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the
-    user.
-    """
+    """Validate the user input allows us to connect."""
     hub = FnosHub(data[CONF_HOST])
 
     if not await hub.authenticate(
@@ -103,6 +110,46 @@ class FnosConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=STEP_USER_DATA_SCHEMA,
             errors=errors
+        )
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> FnosOptionsFlow:
+        """Get the options flow for this handler."""
+        return FnosOptionsFlow()
+
+
+class FnosOptionsFlow(OptionsFlow):
+    """Handle fnOS options."""
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Manage the options."""
+        if user_input is not None:
+            return self.async_create_entry(data=user_input)
+
+        current_system = self.config_entry.options.get(
+            CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
+        )
+        current_disk = self.config_entry.options.get(
+            CONF_DISK_SCAN_INTERVAL, DEFAULT_DISK_SCAN_INTERVAL
+        )
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_SCAN_INTERVAL,
+                        default=current_system,
+                    ): vol.All(vol.Coerce(int), vol.Range(min=10, max=300)),
+                    vol.Required(
+                        CONF_DISK_SCAN_INTERVAL,
+                        default=current_disk,
+                    ): vol.All(vol.Coerce(int), vol.Range(min=300, max=86400)),
+                }
+            ),
         )
 
 

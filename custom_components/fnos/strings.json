@@ -12,6 +12,22 @@
       "unknown": "[%key:common::config_flow::error::unknown%]"
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Polling Intervals",
+        "description": "System and disk data are polled separately. System metrics (CPU, memory, network) are lightweight and can be polled frequently. Disk metrics (volumes, S.M.A.R.T.) may wake sleeping HDDs, so a longer interval is recommended to preserve disk standby.",
+        "data": {
+          "scan_interval": "System polling interval (seconds)",
+          "disk_scan_interval": "Disk polling interval (seconds)"
+        },
+        "data_description": {
+          "scan_interval": "CPU, memory, network, uptime. Recommended: 10\u2013300s (default: 30s)",
+          "disk_scan_interval": "Storage volumes, S.M.A.R.T. health. Recommended: 300\u201386400s (default: 3600s). Lower values may prevent HDD standby."
+        }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "cpu_15min_load": {

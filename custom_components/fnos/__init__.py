@@ -31,7 +31,8 @@ class FnosData:
     """Data for the fnOS integration."""
 
     api: FnosClient
-    coordinator: "FnosCoordinator"
+    coordinator: "FnosSystemCoordinator"
+    disk_coordinator: "FnosDiskCoordinator"
 
 type FnosConfigEntry = ConfigEntry[FnosData]  # noqa: F821
 
@@ -44,55 +45,58 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: FnosConfigEntry
 ) -> bool:
     """Set up fnOS from a config entry."""
-    # Import here to avoid circular import
     from .coordinator import (  # pylint: disable=import-outside-toplevel
-        FnosCoordinator,
+        FnosSystemCoordinator,
+        FnosDiskCoordinator,
     )
 
     _LOGGER.debug("fnos.async_setup_entry called")
 
     client = FnosClient()
-
-    # 设置消息回调
     client.on_message(on_message_handler)
-
-    # 连接到服务器（必须指定endpoint）
     await client.connect(entry.data.get(CONF_HOST))
 
-    # 使用命令行参数中的用户名和密码
     result = await client.login(
         entry.data.get(CONF_USERNAME),
         entry.data.get(CONF_PASSWORD)
     )
     _LOGGER.debug("登录结果: %s", result)
 
-    coordinator = FnosCoordinator(hass, entry, client)
+    system_coordinator = FnosSystemCoordinator(hass, entry, client)
+    disk_coordinator = FnosDiskCoordinator(hass, entry, client)
 
     entry.runtime_data = FnosData(
         api=client,
-        coordinator=coordinator,
+        coordinator=system_coordinator,
+        disk_coordinator=disk_coordinator,
     )
 
-    # Fetch initial data so we have data when entities subscribe
-    #
-    # If the refresh fails, async_config_entry_first_refresh will
-    # raise ConfigEntryNotReady and setup will try again later
-    #
-    # If you do not want to retry setup on failure, use
-    # coordinator.async_refresh() instead
-    #
-    await coordinator.async_config_entry_first_refresh()
+    await system_coordinator.async_config_entry_first_refresh()
+
+    disk_coordinator.machine_id = system_coordinator.machine_id
+    disk_coordinator.device_info = system_coordinator.device_info
+    disk_coordinator.host_name_data = system_coordinator.data["host_name"]
+
+    await disk_coordinator.async_config_entry_first_refresh()
 
     await hass.config_entries.async_forward_entry_setups(entry, _PLATFORMS)
 
+    entry.async_on_unload(entry.add_update_listener(_async_update_listener))
+
     return True
+
+
+async def _async_update_listener(
+    hass: HomeAssistant, entry: FnosConfigEntry
+) -> None:
+    """Handle options update — reload the integration."""
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(
     hass: HomeAssistant, entry: FnosConfigEntry
 ) -> bool:
     """Unload a config entry."""
-
     _LOGGER.debug("fnos.async_unload_entry called")
 
     return await hass.config_entries.async_unload_platforms(
