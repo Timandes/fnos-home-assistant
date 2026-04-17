@@ -5,6 +5,21 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 并且遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.3.0] - 2026-04-17
+
+### 新增
+- 拆分 coordinator：系统指标（CPU/内存/网络）与磁盘指标（存储卷/S.M.A.R.T.）使用独立轮询周期，避免高频轮询唤醒休眠硬盘
+- 新增 Options Flow：支持在集成配置页面自定义系统轮询间隔（默认 30 秒）和磁盘轮询间隔（默认 3600 秒）
+- 新增简体中文翻译（`zh-Hans`）
+
+### 修复
+- 修复磁盘休眠时 SMART 数据为 null 导致的 `AttributeError`，该异常会使 coordinator 永久停止更新所有实体
+
+### 改进
+- 实测数据：HDD 每日唤醒次数从约 8 次降至 0 次（非维护时段）
+
+感谢 [@genelee26](https://github.com/genelee26) 的贡献 ([#3](https://github.com/Timandes/fnos-home-assistant/pull/3))
+
 ## [0.2.3] - 2026-04-17
 
 ### 修复

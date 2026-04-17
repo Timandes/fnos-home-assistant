@@ -58,10 +58,23 @@ cd fnos-home-assistant
 
 
 
+### 轮询间隔配置
+
+集成安装后，可在集成配置页面调整轮询间隔：
+
+[设置 > 设备与服务 > 已配置 > fnOS](https://my.home-assistant.io/redirect/integration/?domain=fnos) > 点击集成卡片上的"配置"按钮
+
+| 配置项 | 说明 | 默认值 | 推荐范围 |
+|-------|------|-------|---------|
+| **系统轮询间隔** | CPU、内存、网络、运行时间 | 30 秒 | 10-300 秒 |
+| **磁盘轮询间隔** | 存储卷、S.M.A.R.T. 健康状态 | 3600 秒（1小时） | 300-86400 秒 |
+
+> **提示**：磁盘轮询会触发物理磁盘读取，可能唤醒休眠中的硬盘。如果希望硬盘保持休眠状态，建议将磁盘轮询间隔设置为较长值（如 1 小时或更长）。
+
 ## 文档
 
 - [许可证](LICENSE)
-- [更新日志](../CHANGELOG.md)
+- [更新日志](CHANGELOG.md)
 - 开发文档： https://developers.home-assistant.io/docs/creating_component_index
 
 ## 硬盘健康监测算法说明
