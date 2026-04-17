@@ -139,8 +139,8 @@ class FnosDiskBinarySensorEntity(
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
-        _LOGGER.info("[FnosDiskBinarySensorEntity] disk: %s", disk)
-        _LOGGER.info(
+        _LOGGER.debug("[FnosDiskBinarySensorEntity] disk: %s", disk)
+        _LOGGER.debug(
             "[FnosDiskBinarySensorEntity] coordinator.data.get(disk): %s",
             self.coordinator.data.get("disk")
         )

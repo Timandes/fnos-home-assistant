@@ -49,7 +49,7 @@ class FnosCoordinator(DataUpdateCoordinator):
         coordinator.async_config_entry_first_refresh.
         """
         job_id = self._generate_job_id()
-        _LOGGER.warning(
+        _LOGGER.debug(
             "[%s] [%s] _async_setup called",
             self.config_entry.title, job_id
         )
@@ -98,7 +98,7 @@ class FnosCoordinator(DataUpdateCoordinator):
         so entities can quickly look up their data.
         """
         job_id = self._generate_job_id()
-        _LOGGER.warning(
+        _LOGGER.debug(
             "[%s] [%s] _async_update_data called",
             self.config_entry.title, job_id
         )
@@ -154,7 +154,7 @@ class FnosCoordinator(DataUpdateCoordinator):
         except NotConnectedError:
             await self.api.reconnect()
             store_result = await self.stor.general()
-        _LOGGER.warning(
+        _LOGGER.debug(
             "[%s] [%s] _async_update_data got stor.general %s",
             self.config_entry.title, job_id, store_result
         )
@@ -168,7 +168,7 @@ class FnosCoordinator(DataUpdateCoordinator):
         disk_resp = await self._async_retrieve_disk_from_fnos(job_id)
 
         #print(f"[{job_id}] 系统运行时间信息5:", uptime_result)
-        _LOGGER.warning(
+        _LOGGER.debug(
             "[%s] [%s] _async_update_data returned with %s",
             self.config_entry.title, job_id, uptime_result
         )
@@ -191,7 +191,7 @@ class FnosCoordinator(DataUpdateCoordinator):
         except NotConnectedError:
             await self.api.reconnect()
             disk_resp = await self.stor.list_disks()
-        _LOGGER.info(
+        _LOGGER.debug(
             "[%s] [%s] _async_update_data got stor.listDisk %s",
             self.config_entry.title, job_id, disk_resp
         )
@@ -201,7 +201,7 @@ class FnosCoordinator(DataUpdateCoordinator):
         except NotConnectedError:
             await self.api.reconnect()
             resmon_disk_resp = await self.res_mon.disk()
-        _LOGGER.info(
+        _LOGGER.debug(
             "[%s] [%s] _async_update_data got resmon.disk %s",
             self.config_entry.title, job_id, resmon_disk_resp
         )

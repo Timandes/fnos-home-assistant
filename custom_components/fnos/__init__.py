@@ -38,7 +38,7 @@ type FnosConfigEntry = ConfigEntry[FnosData]  # noqa: F821
 
 def on_message_handler(message):
     """消息回调处理函数"""
-    print(f"收到消息: {message}")
+    _LOGGER.debug("收到消息: %s", message)
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: FnosConfigEntry
@@ -49,7 +49,7 @@ async def async_setup_entry(
         FnosCoordinator,
     )
 
-    _LOGGER.warning("fnos.async_setup_entry called")
+    _LOGGER.debug("fnos.async_setup_entry called")
 
     client = FnosClient()
 
@@ -64,7 +64,7 @@ async def async_setup_entry(
         entry.data.get(CONF_USERNAME),
         entry.data.get(CONF_PASSWORD)
     )
-    print("登录结果:", result)
+    _LOGGER.debug("登录结果: %s", result)
 
     coordinator = FnosCoordinator(hass, entry, client)
 
@@ -93,7 +93,7 @@ async def async_unload_entry(
 ) -> bool:
     """Unload a config entry."""
 
-    _LOGGER.warning("fnos.async_unload_entry called")
+    _LOGGER.debug("fnos.async_unload_entry called")
 
     return await hass.config_entries.async_unload_platforms(
         entry, _PLATFORMS

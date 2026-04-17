@@ -313,7 +313,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up F&OS sensor based on a config entry."""
-    _LOGGER.warning("[%s] sensor.async_setup_entry called", entry.title)
+    _LOGGER.debug("[%s] sensor.async_setup_entry called", entry.title)
 
     data: FnosData = entry.runtime_data
     coordinator = data.coordinator
@@ -466,8 +466,8 @@ class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
-        _LOGGER.warning("[FnosDiskSensorEntity] disk: %s", disk)
-        _LOGGER.warning(
+        _LOGGER.debug("[FnosDiskSensorEntity] disk: %s", disk)
+        _LOGGER.debug(
             "[FnosDiskSensorEntity] coordinator.data.get(disk): %s",
             self.coordinator.data.get("disk")
         )
@@ -552,8 +552,8 @@ class FnosNetworkIfsSensorEntity(
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
-        _LOGGER.info("[FnosNetworkIfsSensorEntity] ifs: %s", ifs)
-        _LOGGER.info(
+        _LOGGER.debug("[FnosNetworkIfsSensorEntity] ifs: %s", ifs)
+        _LOGGER.debug(
             "[FnosNetworkIfsSensorEntity] coordinator.data.get(ifs): %s",
             self.coordinator.data.get("ifs")
         )
