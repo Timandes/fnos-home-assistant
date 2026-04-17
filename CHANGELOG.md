@@ -12,6 +12,14 @@
 - 修复 pylint 警告：消除代码风格问题（行过长、多余括号、引号不一致）
 - 修复拼写错误：`Healty`/`Unhealty` 改为 `Healthy`/`Unhealthy`
 
+## [0.2.3] - 2026-04-17
+
+### 修复
+- 重构日志等级治理，统一关键日志为调试级别（`debug`）
+- 将初始化与回调中的 `print` 输出移除，改为 `_LOGGER.debug`
+- 保留缺失 SMART 数据告警为 `warning`：`No SMART info was found for disk %s`
+- 新增日志级别约束测试：`custom_components/fnos/tests/test_logging_levels.py`
+
 ## [0.2.2] - 2026-01-31
 
 ### 修复
