@@ -185,6 +185,8 @@ class FnosDiskBinarySensorEntity(
 
     def cal_disk_exceed_bad_sector_thr(self, data) -> bool:
         """Calculate disk_exceed_bad_sector_thr."""
+        if not data.get("smart"):
+            return False
         attrs = data.get("smart").get("ata_smart_attributes")
         if attrs is not None:
             return self._cal_disk_exceed_bad_sector_thr_for_normal_hdd(attrs)
@@ -230,6 +232,8 @@ class FnosDiskBinarySensorEntity(
 
     def cal_disk_below_remain_life_thr(self, data) -> bool:
         """Calculate disk_below_remain_life_thr according to README."""
+        if not data.get("smart"):
+            return False
         attrs = data.get("smart").get("ata_smart_attributes")
         if attrs is not None:
             return self._cal_disk_below_remain_life_thr_for_normal_hdd(attrs)

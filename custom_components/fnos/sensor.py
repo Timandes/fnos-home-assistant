@@ -512,6 +512,8 @@ class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
 
     def extract_reallocated_sector_count(self, data):
         """Extract reallocated_sector_count from S.M.A.R.T."""
+        if not data.get("smart"):
+            return -1
         attrs = data.get("smart").get("ata_smart_attributes")
         if attrs is not None:
             for item in attrs.get("table"):
@@ -529,6 +531,8 @@ class FnosDiskSensorEntity(CoordinatorEntity[FnosCoordinator], SensorEntity):
 
     def extract_disk_smart_status(self, data) -> str:
         """Extract disk_smart_status."""
+        if not data.get("smart"):
+            return "Unknown"
         if data.get("smart").get("smartctl").get("exit_status") != 0:
             return "Unknown"
 
