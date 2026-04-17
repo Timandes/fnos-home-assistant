@@ -18,7 +18,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import FnosData
 from .const import DOMAIN
-from .coordinator import FnosCoordinator
+from .coordinator import FnosSystemCoordinator, FnosDiskCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -69,20 +69,21 @@ async def async_setup_entry(
     _LOGGER.debug("[%s] binary_sensor.async_setup_entry called", entry.title)
 
     data: FnosData = entry.runtime_data
-    coordinator = data.coordinator
+    system_coord = data.coordinator
+    disk_coord = data.disk_coordinator
 
     entities = [
-        FnosBinarySensorEntity(coordinator, description)
+        FnosBinarySensorEntity(system_coord, description)
         for description in SECURITY_BINARY_SENSORS
     ]
 
     # Handle all disks
-    if coordinator.data.get("disk"):
+    if disk_coord.data.get("disk"):
         entities.extend(
             [
-                FnosDiskBinarySensorEntity(coordinator, description, disk)
+                FnosDiskBinarySensorEntity(disk_coord, description, disk)
                 for disk in entry.data.get(
-                    CONF_DISKS, coordinator.data.get("disk")
+                    CONF_DISKS, disk_coord.data.get("disk")
                 )
                 for description in STORAGE_DISK_BINARY_SENSORS
             ]
@@ -92,7 +93,7 @@ async def async_setup_entry(
 
 
 class FnosBinarySensorEntity(
-    CoordinatorEntity[FnosCoordinator], BinarySensorEntity
+    CoordinatorEntity[FnosSystemCoordinator], BinarySensorEntity
 ):
     """Representation of a fnOS binary sensor."""
 
@@ -101,7 +102,7 @@ class FnosBinarySensorEntity(
 
     def __init__(
         self,
-        coordinator: FnosCoordinator,
+        coordinator: FnosSystemCoordinator,
         description: FnosBinarySensorEntityDescription,
     ) -> None:
         """Initialize the sensor."""
@@ -124,7 +125,7 @@ class FnosBinarySensorEntity(
 
 
 class FnosDiskBinarySensorEntity(
-    CoordinatorEntity[FnosCoordinator], BinarySensorEntity
+    CoordinatorEntity[FnosDiskCoordinator], BinarySensorEntity
 ):
     """Representation of a disk binary sensor in fnOS."""
 
@@ -133,7 +134,7 @@ class FnosDiskBinarySensorEntity(
 
     def __init__(
         self,
-        coordinator: FnosCoordinator,
+        coordinator: FnosDiskCoordinator,
         description: FnosBinarySensorEntityDescription,
         disk
     ) -> None:
@@ -149,9 +150,8 @@ class FnosDiskBinarySensorEntity(
         disk_sn = disk.get("serialNumber")
         disk_model = disk.get("modelName")
         disk_vendor = disk.get("vendor")
-        trim_version = self.coordinator.data["host_name"].get("trimVersion")
-        # hostName实际上“设置”页可修改的“设备名称”
-        host_name = self.coordinator.data.get("host_name").get("hostName")
+        trim_version = self.coordinator.host_name_data.get("trimVersion")
+        host_name = self.coordinator.host_name_data.get("hostName")
 
         self.entity_description = description
         self._attr_unique_id = (
@@ -185,6 +185,8 @@ class FnosDiskBinarySensorEntity(
 
     def cal_disk_exceed_bad_sector_thr(self, data) -> bool:
         """Calculate disk_exceed_bad_sector_thr."""
+        if not data.get("smart"):
+            return False
         attrs = data.get("smart").get("ata_smart_attributes")
         if attrs is not None:
             return self._cal_disk_exceed_bad_sector_thr_for_normal_hdd(attrs)
@@ -230,6 +232,8 @@ class FnosDiskBinarySensorEntity(
 
     def cal_disk_below_remain_life_thr(self, data) -> bool:
         """Calculate disk_below_remain_life_thr according to README."""
+        if not data.get("smart"):
+            return False
         attrs = data.get("smart").get("ata_smart_attributes")
         if attrs is not None:
             return self._cal_disk_below_remain_life_thr_for_normal_hdd(attrs)

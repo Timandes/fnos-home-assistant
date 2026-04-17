@@ -1,0 +1,146 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "host": "地址:端口",
+          "username": "用户名",
+          "password": "密码"
+        },
+        "data_description": {
+          "host": "例如: 192.168.31.111:5666"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "设备已配置"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "轮询间隔设置",
+        "description": "系统指标和磁盘指标使用独立的轮询周期。系统指标（CPU、内存、网络）为轻量查询，可高频轮询；磁盘指标（存储卷、S.M.A.R.T.）会触发物理磁盘读取，可能唤醒休眠中的硬盘，建议使用较长间隔以保护硬盘休眠。",
+        "data": {
+          "scan_interval": "系统轮询间隔（秒）",
+          "disk_scan_interval": "磁盘轮询间隔（秒）"
+        },
+        "data_description": {
+          "scan_interval": "CPU、内存、网络、运行时间。推荐范围: 10-300秒（默认: 30秒）",
+          "disk_scan_interval": "存储卷、S.M.A.R.T. 健康状态。推荐范围: 300-86400秒（默认: 3600秒）。值越小，硬盘越难进入休眠。"
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "disk_below_remain_life_thr": {
+        "name": "低于最低剩余寿命"
+      },
+      "disk_exceed_bad_sector_thr": {
+        "name": "超过最大坏道数"
+      },
+      "status": {
+        "name": "安全状态"
+      }
+    },
+    "sensor": {
+      "cpu_15min_load": {
+        "name": "CPU 负载均值 (15分钟)"
+      },
+      "cpu_1min_load": {
+        "name": "CPU 负载均值 (1分钟)"
+      },
+      "cpu_5min_load": {
+        "name": "CPU 负载均值 (5分钟)"
+      },
+      "cpu_other_load": {
+        "name": "CPU 使用率 (其他)"
+      },
+      "cpu_system_load": {
+        "name": "CPU 使用率 (系统)"
+      },
+      "cpu_total_load": {
+        "name": "CPU 使用率 (总计)"
+      },
+      "cpu_user_load": {
+        "name": "CPU 使用率 (用户)"
+      },
+      "device_size_total": {
+        "name": "设备容量"
+      },
+      "device_status": {
+        "name": "状态"
+      },
+      "disk_smart_status": {
+        "name": "S.M.A.R.T. 状态"
+      },
+      "disk_status": {
+        "name": "状态"
+      },
+      "disk_temp": {
+        "name": "温度"
+      },
+      "disk_reallocated_sector_count": {
+        "name": "重映射扇区/退役块数"
+      },
+      "memory_available_real": {
+        "name": "可用内存 (物理)"
+      },
+      "memory_available_swap": {
+        "name": "可用内存 (交换)"
+      },
+      "memory_cached": {
+        "name": "缓存内存"
+      },
+      "memory_real_usage": {
+        "name": "内存使用率 (物理)"
+      },
+      "memory_size": {
+        "name": "内存总量"
+      },
+      "memory_total_real": {
+        "name": "内存总计 (物理)"
+      },
+      "memory_total_swap": {
+        "name": "内存总计 (交换)"
+      },
+      "network_down": {
+        "name": "下载速率"
+      },
+      "network_up": {
+        "name": "上传速率"
+      },
+      "partition_percentage_used": {
+        "name": "分区使用率"
+      },
+      "partition_size_total": {
+        "name": "分区容量"
+      },
+      "partition_size_used": {
+        "name": "分区已用空间"
+      },
+      "uptime": {
+        "name": "上次启动"
+      },
+      "volume_disk_temp_avg": {
+        "name": "磁盘平均温度"
+      },
+      "volume_disk_temp_max": {
+        "name": "磁盘最高温度"
+      },
+      "volume_percentage_used": {
+        "name": "存储卷使用率"
+      },
+      "volume_size_total": {
+        "name": "总容量"
+      },
+      "volume_size_used": {
+        "name": "已用空间"
+      },
+      "volume_status": {
+        "name": "状态"
+      }
+    }
+  }
+}
