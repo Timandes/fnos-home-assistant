@@ -90,6 +90,7 @@ class FnosSystemCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         """Fetch system-level data from fnOS API."""
+        _LOGGER.debug("[%s] system coordinator _async_update_data called", self.config_entry.title)
         _LOGGER.debug("[%s] system coordinator update", self.config_entry.title)
 
         try:
@@ -122,13 +123,15 @@ class FnosSystemCoordinator(DataUpdateCoordinator):
             await self.api.reconnect()
             net_result = await self.res_mon.net()
 
-        return {
+        data = {
             "uptime": uptime_result.get("data"),
             "host_name": host_name_resp.get("data"),
             "cpu": cpu_result.get("data"),
             "memory": memory_result.get("data"),
             "net": net_result.get("data"),
         }
+        _LOGGER.debug("_async_update_data returned with %s", data)
+        return data
 
 
 class FnosDiskCoordinator(DataUpdateCoordinator):
@@ -166,6 +169,7 @@ class FnosDiskCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         """Fetch disk/storage data from fnOS API."""
+        _LOGGER.debug("[%s] disk coordinator _async_update_data called", self.config_entry.title)
         _LOGGER.debug("[%s] disk coordinator update", self.config_entry.title)
 
         try:
@@ -173,13 +177,16 @@ class FnosDiskCoordinator(DataUpdateCoordinator):
         except NotConnectedError:
             await self.api.reconnect()
             store_result = await self.stor.general()
+        _LOGGER.debug("_async_update_data got stor.general %s", store_result)
 
         disk_resp = await self._async_retrieve_disk()
 
-        return {
+        data = {
             "store": store_result,
             "disk": disk_resp,
         }
+        _LOGGER.debug("_async_update_data returned with %s", data)
+        return data
 
     async def _async_retrieve_disk(self):
         """Fetch disk list with SMART and IO data."""
@@ -188,12 +195,14 @@ class FnosDiskCoordinator(DataUpdateCoordinator):
         except NotConnectedError:
             await self.api.reconnect()
             disk_resp = await self.stor.list_disks()
+        _LOGGER.debug("_async_update_data got stor.listDisk %s", disk_resp)
 
         try:
             resmon_disk_resp = await self.res_mon.disk()
         except NotConnectedError:
             await self.api.reconnect()
             resmon_disk_resp = await self.res_mon.disk()
+        _LOGGER.debug("_async_update_data got resmon.disk %s", resmon_disk_resp)
 
         for item in disk_resp.get("disk"):
             name = item.get("name")
