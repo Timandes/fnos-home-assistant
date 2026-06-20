@@ -8,6 +8,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[3]
 AUTH_PATH = ROOT / "custom_components" / "fnos" / "auth.py"
+CONFIG_FLOW_PATH = ROOT / "custom_components" / "fnos" / "config_flow.py"
 
 
 def load_auth_module():
@@ -88,6 +89,32 @@ class AuthHelperTests(unittest.TestCase):
         self.assertFalse(self.auth.is_valid_twofa_code("1234567"))
         self.assertFalse(self.auth.is_valid_twofa_code("12a456"))
         self.assertFalse(self.auth.is_valid_twofa_code(""))
+
+    def test_auth_status_values_match_config_flow_error_keys(self):
+        self.assertEqual(self.auth.AuthStatus.CANNOT_CONNECT.value, "cannot_connect")
+        self.assertEqual(self.auth.AuthStatus.INVALID_AUTH.value, "invalid_auth")
+        self.assertEqual(
+            self.auth.AuthStatus.INVALID_TWOFA_CODE.value,
+            "invalid_twofa_code",
+        )
+        self.assertEqual(
+            self.auth.AuthStatus.TWOFA_SETUP_REQUIRED.value,
+            "twofa_setup_required",
+        )
+
+    def test_twofa_required_status_is_not_an_error_key(self):
+        self.assertEqual(
+            self.auth.AuthStatus.TWOFA_REQUIRED.value,
+            "twofa_required",
+        )
+
+    def test_config_flow_defines_twofa_step_and_trusts_device(self):
+        text = CONFIG_FLOW_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("async def async_step_twofa", text)
+        self.assertIn("STEP_TWOFA_DATA_SCHEMA", text)
+        self.assertIn("submit_twofa_code(code)", text)
+        self.assertIn("trust_device=True", text)
 
 
 if __name__ == "__main__":
