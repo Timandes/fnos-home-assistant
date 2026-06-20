@@ -20,6 +20,18 @@
         "data_description": {
           "code": "6-digit verification code"
         }
+      },
+      "reauth_confirm": {
+        "title": "Reauthenticate fnOS",
+        "description": "Enter the current fnOS credentials. If the account requires two-factor authentication, Home Assistant will ask for the verification code next.",
+        "data": {
+          "host": "Host:Port",
+          "username": "User Name",
+          "password": "Password"
+        },
+        "data_description": {
+          "host": "E.G: 192.168.31.111:5666"
+        }
       }
     },
     "abort": {

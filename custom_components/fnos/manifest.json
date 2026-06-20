@@ -12,6 +12,6 @@
   "quality_scale": "bronze",
   "requirements": ["fnos>=0.13.0"],
   "ssdp": [],
-  "version": "0.2.2",
+  "version": "0.4.0",
   "zeroconf": []
 }

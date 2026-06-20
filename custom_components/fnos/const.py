@@ -9,6 +9,9 @@ CONF_DEVICE_TOKEN = "device_token"
 CONF_SNAPSHOT_QUALITY = "snap_profile_type"
 CONF_BACKUP_SHARE = "backup_share"
 CONF_BACKUP_PATH = "backup_path"
+CONF_AUTH_TOKEN = "auth_token"
+CONF_LONG_TOKEN = "long_token"
+CONF_DECRYPTED_SECRET = "decrypted_secret"
 
 CONF_NETWORK_IFS = "network_ifs"
 

@@ -72,4 +72,6 @@ def is_valid_twofa_code(code: str) -> bool:
 
 def is_connection_error(exc: Exception) -> bool:
     """Return True when an exception represents a connection-level failure."""
-    return isinstance(exc, (ConnectionError, TimeoutError, OSError))
+    return isinstance(exc, (ConnectionError, TimeoutError, OSError)) or str(exc) in {
+        "未连接到服务器",
+    }

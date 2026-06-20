@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 import logging
 from typing import Any
 
@@ -12,6 +13,7 @@ from homeassistant.config_entries import (
     ConfigFlow,
     ConfigFlowResult,
     OptionsFlow,
+    SOURCE_REAUTH,
 )
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_NAME
 from homeassistant.core import callback
@@ -30,6 +32,9 @@ from .const import (
     DEFAULT_DISK_SCAN_INTERVAL,
     CONF_SCAN_INTERVAL,
     CONF_DISK_SCAN_INTERVAL,
+    CONF_AUTH_TOKEN,
+    CONF_LONG_TOKEN,
+    CONF_DECRYPTED_SECRET,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -105,6 +110,30 @@ class FnosHub:
 
         return classify_twofa_response(response)
 
+    def stored_auth_data(self) -> dict[str, str]:
+        """Return auth material captured after a final successful login."""
+        if not self._client:
+            return {}
+
+        data = {}
+        token = getattr(self._client, "token", None)
+        long_token = getattr(self._client, "long_token", None)
+        get_secret = getattr(self._client, "get_decrypted_secret", None)
+        secret = (
+            get_secret()
+            if get_secret
+            else getattr(self._client, "decrypted_secret", None)
+        )
+
+        if token:
+            data[CONF_AUTH_TOKEN] = token
+        if long_token:
+            data[CONF_LONG_TOKEN] = long_token
+        if secret:
+            data[CONF_DECRYPTED_SECRET] = secret
+
+        return data
+
     async def close(self) -> None:
         """Close the temporary fnOS client."""
         if not self._client:
@@ -134,13 +163,38 @@ class FnosConfigFlow(ConfigFlow, domain=DOMAIN):
     def _create_entry_from_user_input(
         self,
         user_input: dict[str, Any],
+        hub: FnosHub | None = None,
     ) -> ConfigFlowResult:
         """Create a config entry from validated user input."""
         host = user_input[CONF_HOST]
         friendly_name = user_input.get(CONF_NAME)
+        entry_data = self._entry_data_from_user_input(user_input, hub)
+
         return self.async_create_entry(
             title=friendly_name or host,
-            data=user_input,
+            data=entry_data,
+        )
+
+    def _entry_data_from_user_input(
+        self,
+        user_input: dict[str, Any],
+        hub: FnosHub | None = None,
+    ) -> dict[str, Any]:
+        """Build config entry data from validated user input and auth data."""
+        entry_data = dict(user_input)
+        if hub:
+            entry_data.update(hub.stored_auth_data())
+        return entry_data
+
+    def _update_reauth_entry_from_user_input(
+        self,
+        user_input: dict[str, Any],
+        hub: FnosHub | None = None,
+    ) -> ConfigFlowResult:
+        """Update the existing config entry after successful reauth."""
+        return self.async_update_reload_and_abort(
+            self._get_reauth_entry(),
+            data_updates=self._entry_data_from_user_input(user_input, hub),
         )
 
     async def _clear_pending_hub(self) -> None:
@@ -155,6 +209,53 @@ class FnosConfigFlow(ConfigFlow, domain=DOMAIN):
                 )
         self._pending_hub = None
         self._pending_user_input = None
+
+    async def _restart_twofa_challenge(self) -> AuthResult:
+        """Rebuild a pending 2FA challenge after the temporary connection closed."""
+        if self._pending_user_input is None:
+            return AuthResult(AuthStatus.CANNOT_CONNECT)
+
+        if self._pending_hub:
+            try:
+                await self._pending_hub.close()
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                _LOGGER.debug(
+                    "Failed to close stale fnOS auth client: %s",
+                    exc,
+                )
+
+        pending_input = self._pending_user_input
+        hub = FnosHub(pending_input[CONF_HOST])
+        result = await hub.login(
+            pending_input[CONF_USERNAME],
+            pending_input[CONF_PASSWORD],
+        )
+
+        if result.status == AuthStatus.TWOFA_REQUIRED:
+            self._pending_hub = hub
+            return result
+
+        await hub.close()
+        self._pending_hub = None
+        return result
+
+    async def _submit_twofa_code_with_reconnect(self, code: str) -> AuthResult:
+        """Submit a 2FA code, rebuilding the challenge if the connection expired."""
+        if self._pending_hub is None:
+            return AuthResult(AuthStatus.CANNOT_CONNECT)
+
+        result = await self._pending_hub.submit_twofa_code(code)
+        if result.status != AuthStatus.CANNOT_CONNECT:
+            return result
+
+        restart_result = await self._restart_twofa_challenge()
+        if restart_result.status != AuthStatus.TWOFA_REQUIRED:
+            return restart_result
+
+        if self._pending_hub is None:
+            return AuthResult(AuthStatus.CANNOT_CONNECT)
+
+        return await self._pending_hub.submit_twofa_code(code)
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -171,8 +272,9 @@ class FnosConfigFlow(ConfigFlow, domain=DOMAIN):
             )
 
             if result.status == AuthStatus.SUCCESS:
+                entry = self._create_entry_from_user_input(user_input, hub)
                 await hub.close()
-                return self._create_entry_from_user_input(user_input)
+                return entry
 
             if result.status == AuthStatus.TWOFA_REQUIRED:
                 self._pending_hub = hub
@@ -210,12 +312,21 @@ class FnosConfigFlow(ConfigFlow, domain=DOMAIN):
             if not is_valid_twofa_code(code):
                 errors["base"] = "invalid_twofa_code"
             else:
-                result = await self._pending_hub.submit_twofa_code(code)
+                result = await self._submit_twofa_code_with_reconnect(code)
                 if result.status == AuthStatus.SUCCESS:
                     entry_input = self._pending_user_input
+                    if self.source == SOURCE_REAUTH:
+                        entry = self._update_reauth_entry_from_user_input(
+                            entry_input,
+                            self._pending_hub,
+                        )
+                    else:
+                        entry = self._create_entry_from_user_input(
+                            entry_input,
+                            self._pending_hub,
+                        )
                     await self._clear_pending_hub()
-                    self._pending_user_input = None
-                    return self._create_entry_from_user_input(entry_input)
+                    return entry
 
                 if result.status == AuthStatus.INVALID_TWOFA_CODE:
                     errors["base"] = "invalid_twofa_code"
@@ -227,6 +338,76 @@ class FnosConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="twofa",
             data_schema=STEP_TWOFA_DATA_SCHEMA,
+            errors=errors,
+        )
+
+    async def async_step_reauth(
+        self,
+        entry_data: Mapping[str, Any],
+    ) -> ConfigFlowResult:
+        """Handle reauthentication for an existing config entry."""
+        return await self.async_step_reauth_confirm(dict(entry_data))
+
+    async def async_step_reauth_confirm(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> ConfigFlowResult:
+        """Confirm updated credentials during reauthentication."""
+        errors: dict[str, str] = {}
+        reauth_entry_data = dict(self._get_reauth_entry().data)
+
+        if user_input is not None:
+            await self._clear_pending_hub()
+
+            reauth_input = dict(reauth_entry_data)
+            reauth_input.update(user_input)
+            hub = FnosHub(reauth_input[CONF_HOST])
+            result = await hub.login(
+                reauth_input[CONF_USERNAME],
+                reauth_input[CONF_PASSWORD],
+            )
+
+            if result.status == AuthStatus.SUCCESS:
+                entry = self._update_reauth_entry_from_user_input(
+                    reauth_input,
+                    hub,
+                )
+                await hub.close()
+                return entry
+
+            if result.status == AuthStatus.TWOFA_REQUIRED:
+                self._pending_hub = hub
+                self._pending_user_input = reauth_input
+                return await self.async_step_twofa()
+
+            await hub.close()
+            if result.status in {
+                AuthStatus.CANNOT_CONNECT,
+                AuthStatus.INVALID_AUTH,
+                AuthStatus.TWOFA_SETUP_REQUIRED,
+            }:
+                errors["base"] = result.status.value
+            else:
+                errors["base"] = "unknown"
+
+        return self.async_show_form(
+            step_id="reauth_confirm",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_HOST,
+                        default=reauth_entry_data.get(CONF_HOST, ""),
+                    ): str,
+                    vol.Required(
+                        CONF_USERNAME,
+                        default=reauth_entry_data.get(CONF_USERNAME, ""),
+                    ): str,
+                    vol.Required(
+                        CONF_PASSWORD,
+                        default=reauth_entry_data.get(CONF_PASSWORD, ""),
+                    ): str,
+                }
+            ),
             errors=errors,
         )
 

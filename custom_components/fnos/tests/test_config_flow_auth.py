@@ -11,6 +11,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[3]
 AUTH_PATH = ROOT / "custom_components" / "fnos" / "auth.py"
 CONFIG_FLOW_PATH = ROOT / "custom_components" / "fnos" / "config_flow.py"
+INIT_PATH = ROOT / "custom_components" / "fnos" / "__init__.py"
 
 
 def load_auth_module():
@@ -138,16 +139,65 @@ class AuthHelperTests(unittest.TestCase):
             )
         )
 
+    def test_config_flow_persists_final_auth_material(self):
+        text = CONFIG_FLOW_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("stored_auth_data", text)
+        self.assertIn("CONF_AUTH_TOKEN", text)
+        self.assertIn("CONF_LONG_TOKEN", text)
+        self.assertIn("CONF_DECRYPTED_SECRET", text)
+        self.assertIn("get_decrypted_secret", text)
+
+    def test_runtime_setup_uses_stored_token_login(self):
+        text = INIT_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("login_via_token", text)
+        self.assertIn("CONF_AUTH_TOKEN", text)
+        self.assertIn("CONF_LONG_TOKEN", text)
+        self.assertIn("CONF_DECRYPTED_SECRET", text)
+        self.assertIn("get_decrypted_secret", text)
+
+    def test_runtime_setup_installs_token_aware_reconnect_handler(self):
+        text = INIT_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("_async_reconnect_client", text)
+        self.assertIn("_install_reconnect_handler", text)
+        self.assertIn("client.reconnect = reconnect", text)
+
+    def test_runtime_setup_rejects_unfinished_twofa_login(self):
+        text = INIT_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("ConfigEntryAuthFailed", text)
+        self.assertIn("classify_login_response", text)
+        self.assertIn("AuthStatus.TWOFA_REQUIRED", text)
+        self.assertIn("AuthStatus.TWOFA_SETUP_REQUIRED", text)
+
+    def test_config_flow_defines_reauth_flow(self):
+        text = CONFIG_FLOW_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("async def async_step_reauth", text)
+        self.assertIn("async def async_step_reauth_confirm", text)
+        self.assertIn("async_update_reload_and_abort", text)
+        self.assertIn("_get_reauth_entry", text)
+
     def test_connection_errors_are_classified_as_cannot_connect(self):
         for exc in (
             ConnectionError("connection failed"),
             TimeoutError("timeout"),
             OSError("socket closed"),
+            Exception("未连接到服务器"),
         ):
             with self.subTest(exc=type(exc).__name__):
                 self.assertTrue(self.auth.is_connection_error(exc))
 
         self.assertFalse(self.auth.is_connection_error(RuntimeError("bad response")))
+
+    def test_twofa_submission_rebuilds_challenge_after_disconnect(self):
+        text = CONFIG_FLOW_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("_submit_twofa_code_with_reconnect", text)
+        self.assertIn("_restart_twofa_challenge", text)
+        self.assertIn("AuthStatus.CANNOT_CONNECT", text)
 
     def test_config_flow_cleanup_is_best_effort_and_clears_pending_input(self):
         text = CONFIG_FLOW_PATH.read_text(encoding="utf-8")
@@ -173,6 +223,7 @@ class AuthHelperTests(unittest.TestCase):
             with self.subTest(path=path):
                 data = json.loads(path.read_text(encoding="utf-8"))
                 self.assertIn("twofa", data["config"]["step"])
+                self.assertIn("reauth_confirm", data["config"]["step"])
                 self.assertIn("invalid_twofa_code", data["config"]["error"])
                 self.assertIn("twofa_setup_required", data["config"]["error"])
 

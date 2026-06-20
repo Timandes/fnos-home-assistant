@@ -11,6 +11,8 @@
 >
 > Python 版本要求：$\geq$ 3.12.0
 >
+> pyfnOS 依赖要求：`fnos>=0.13.0`
+>
 > 原因：Home Assistant Core 2024.4.4 要求 Python >= 3.12.0（参见 [pyproject.toml](https://github.com/home-assistant/core/blob/2024.4.4/pyproject.toml) 中的 `requires-python` 配置项）。
 
 ### 方法 1：使用 git clone 命令从 GitHub 下载
@@ -55,6 +57,14 @@ cd fnos-home-assistant
 提交验证码时，集成会请求 fnOS 信任当前 Home Assistant 设备，以减少后续验证码要求。是否后续免验证码由 fnOS 服务端决定。
 
 如果 fnOS 提示该账号被要求启用双重验证但尚未绑定验证器，请先在 fnOS Web 端完成双重验证设置，再回到 Home Assistant 添加集成。
+
+### 重新认证
+
+配置完成后，集成会保存 fnOS 返回的 token、long token 和 decrypted secret，用于 Home Assistant 重启、token 刷新和断线重连时恢复会话。
+
+如果 fnOS token 过期、失效或不可用，Home Assistant 会在集成页面提示“重新配置”。点击后按向导输入当前 6 位双重验证码即可重新认证。重新认证成功后，集成会更新保存的认证信息并重新加载 fnOS 集成。
+
+> **安全提示**：上述认证信息与账号密码一样属于敏感数据，会随 Home Assistant 配置项存储在 `.storage/core.config_entries` 中。请妥善保护 Home Assistant 配置目录，不要公开分享该文件或调试包。
 
 ### 多NAS登录
 

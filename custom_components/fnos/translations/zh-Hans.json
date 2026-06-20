@@ -20,6 +20,18 @@
         "data_description": {
           "code": "6 位数字验证码"
         }
+      },
+      "reauth_confirm": {
+        "title": "重新认证 fnOS",
+        "description": "请输入当前 fnOS 凭据。如果该账号需要双重验证，Home Assistant 会继续要求输入验证码。",
+        "data": {
+          "host": "地址:端口",
+          "username": "用户名",
+          "password": "密码"
+        },
+        "data_description": {
+          "host": "例如: 192.168.31.111:5666"
+        }
       }
     },
     "abort": {
