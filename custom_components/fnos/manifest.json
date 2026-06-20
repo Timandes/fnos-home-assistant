@@ -10,7 +10,7 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/Timandes/fnos-home-assistant/issues",
   "quality_scale": "bronze",
-  "requirements": ["fnos>=0.10.1"],
+  "requirements": ["fnos>=0.13.0"],
   "ssdp": [],
   "version": "0.2.2",
   "zeroconf": []

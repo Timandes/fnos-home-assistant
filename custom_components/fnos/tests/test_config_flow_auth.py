@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import importlib.util
+import json
 import sys
 import unittest
 
@@ -115,6 +116,26 @@ class AuthHelperTests(unittest.TestCase):
         self.assertIn("STEP_TWOFA_DATA_SCHEMA", text)
         self.assertIn("submit_twofa_code(code)", text)
         self.assertIn("trust_device=True", text)
+
+    def test_manifest_requires_pyfnos_0130(self):
+        manifest_path = ROOT / "custom_components" / "fnos" / "manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+        self.assertIn("fnos>=0.13.0", manifest["requirements"])
+
+    def test_translation_files_include_twofa_step_and_errors(self):
+        translation_paths = [
+            ROOT / "custom_components" / "fnos" / "strings.json",
+            ROOT / "custom_components" / "fnos" / "translations" / "zh-Hans.json",
+            ROOT / "custom_components" / "fnos" / "translations" / "en.json",
+        ]
+
+        for path in translation_paths:
+            with self.subTest(path=path):
+                data = json.loads(path.read_text(encoding="utf-8"))
+                self.assertIn("twofa", data["config"]["step"])
+                self.assertIn("invalid_twofa_code", data["config"]["error"])
+                self.assertIn("twofa_setup_required", data["config"]["error"])
 
 
 if __name__ == "__main__":
