@@ -123,6 +123,56 @@ class LoggingPolicyTests(unittest.TestCase):
             "warning",
         )
 
+    def test_config_flow_does_not_log_sensitive_payloads(self):
+        text = self._read("config_flow.py")
+
+        sensitive_terms = (
+            "password",
+            "code",
+            "accessToken",
+            "token",
+            "longToken",
+            "secret",
+        )
+
+        for level, message in self._logger_calls(text):
+            with self.subTest(level=level, message=message):
+                for term in sensitive_terms:
+                    self.assertNotIn(term, message)
+
+    def test_auth_log_calls_do_not_dump_sensitive_variables(self):
+        sensitive_argument_names = {
+            "result",
+            "response",
+            "user_input",
+            "password",
+            "code",
+            "token",
+            "long_token",
+            "secret",
+            "access_token",
+        }
+
+        for relative_path in ("__init__.py", "config_flow.py"):
+            text = self._read(relative_path)
+            tree = ast.parse(text)
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Call):
+                    continue
+
+                func = node.func
+                if not (
+                    isinstance(func, ast.Attribute)
+                    and isinstance(func.value, ast.Name)
+                    and func.value.id == "_LOGGER"
+                ):
+                    continue
+
+                for arg in node.args[1:]:
+                    with self.subTest(path=relative_path, line=node.lineno):
+                        if isinstance(arg, ast.Name):
+                            self.assertNotIn(arg.id, sensitive_argument_names)
+
 
 if __name__ == "__main__":
     unittest.main()

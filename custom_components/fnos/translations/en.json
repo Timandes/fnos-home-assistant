@@ -10,10 +10,36 @@
         "data_description": {
           "host": "E.G: 192.168.31.111:5666"
         }
+      },
+      "twofa": {
+        "title": "Enter two-factor code",
+        "description": "This fnOS account requires two-factor authentication. Enter the 6-digit code from your authenticator app. Home Assistant will ask fnOS to trust this device after submitting the code.",
+        "data": {
+          "code": "Code"
+        },
+        "data_description": {
+          "code": "6-digit verification code"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Reauthenticate fnOS",
+        "description": "Enter the current fnOS credentials. If the account requires two-factor authentication, Home Assistant will ask for the verification code next.",
+        "data": {
+          "host": "Host:Port",
+          "username": "User Name",
+          "password": "Password"
+        },
+        "data_description": {
+          "host": "E.G: 192.168.31.111:5666"
+        }
       }
     },
     "abort": {
       "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+    },
+    "error": {
+      "invalid_twofa_code": "The verification code is invalid or expired. Try again.",
+      "twofa_setup_required": "This account is required to use two-factor authentication, but no authenticator is bound yet. Set it up in the fnOS web UI first."
     }
   },
   "options": {
