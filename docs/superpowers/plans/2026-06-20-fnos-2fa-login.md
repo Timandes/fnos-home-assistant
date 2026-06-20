@@ -148,7 +148,7 @@ class AuthHelperTests(unittest.TestCase):
 Run:
 
 ```bash
-python3 -m unittest custom_components/fnos/tests/test_config_flow_auth.py
+python3 custom_components/fnos/tests/test_config_flow_auth.py
 ```
 
 Expected:
@@ -239,7 +239,7 @@ def is_valid_twofa_code(code: str) -> bool:
 Run:
 
 ```bash
-python3 -m unittest custom_components/fnos/tests/test_config_flow_auth.py
+python3 custom_components/fnos/tests/test_config_flow_auth.py
 ```
 
 Expected:
@@ -294,7 +294,7 @@ Append these tests to `AuthHelperTests` in `custom_components/fnos/tests/test_co
 Run:
 
 ```bash
-python3 -m unittest custom_components/fnos/tests/test_config_flow_auth.py
+python3 custom_components/fnos/tests/test_config_flow_auth.py
 ```
 
 Expected:
@@ -525,7 +525,7 @@ If `python3.12` is not installed, run the same command in the Home Assistant dev
 Run:
 
 ```bash
-python3 -m unittest custom_components/fnos/tests/test_config_flow_auth.py
+python3 custom_components/fnos/tests/test_config_flow_auth.py
 ```
 
 Expected:
@@ -589,7 +589,7 @@ Append these tests to `AuthHelperTests`:
 Run:
 
 ```bash
-python3 -m unittest custom_components/fnos/tests/test_config_flow_auth.py
+python3 custom_components/fnos/tests/test_config_flow_auth.py
 ```
 
 Expected:
@@ -698,7 +698,7 @@ python3 -m json.tool custom_components/fnos/manifest.json >/dev/null
 python3 -m json.tool custom_components/fnos/strings.json >/dev/null
 python3 -m json.tool custom_components/fnos/translations/zh-Hans.json >/dev/null
 python3 -m json.tool custom_components/fnos/translations/en.json >/dev/null
-python3 -m unittest custom_components/fnos/tests/test_config_flow_auth.py
+python3 custom_components/fnos/tests/test_config_flow_auth.py
 ```
 
 Expected:
@@ -861,7 +861,7 @@ No unstaged changes if every task was committed.
 Run:
 
 ```bash
-python3 -m unittest custom_components/fnos/tests/test_config_flow_auth.py
+python3 custom_components/fnos/tests/test_config_flow_auth.py
 ```
 
 Expected:
