@@ -123,6 +123,23 @@ class LoggingPolicyTests(unittest.TestCase):
             "warning",
         )
 
+    def test_config_flow_does_not_log_sensitive_payloads(self):
+        text = self._read("config_flow.py")
+
+        sensitive_terms = (
+            "password",
+            "code",
+            "accessToken",
+            "token",
+            "longToken",
+            "secret",
+        )
+
+        for level, message in self._logger_calls(text):
+            with self.subTest(level=level, message=message):
+                for term in sensitive_terms:
+                    self.assertNotIn(term, message)
+
 
 if __name__ == "__main__":
     unittest.main()
