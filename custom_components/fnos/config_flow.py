@@ -21,6 +21,7 @@ from .auth import (
     AuthStatus,
     classify_login_response,
     classify_twofa_response,
+    is_connection_error,
     is_valid_twofa_code,
 )
 from .const import (
@@ -74,6 +75,8 @@ class FnosHub:
             response = await self._client.login(username, password)
         except Exception as exc:  # pylint: disable=broad-exception-caught
             _LOGGER.warning("fnOS login failed for host %s: %s", self.host, exc)
+            if is_connection_error(exc):
+                return AuthResult(AuthStatus.CANNOT_CONNECT)
             return AuthResult(AuthStatus.UNKNOWN)
 
         return classify_login_response(response)
@@ -96,6 +99,8 @@ class FnosHub:
                 self.host,
                 exc,
             )
+            if is_connection_error(exc):
+                return AuthResult(AuthStatus.CANNOT_CONNECT)
             return AuthResult(AuthStatus.UNKNOWN)
 
         return classify_twofa_response(response)
@@ -141,8 +146,15 @@ class FnosConfigFlow(ConfigFlow, domain=DOMAIN):
     async def _clear_pending_hub(self) -> None:
         """Close and clear any pending authentication client."""
         if self._pending_hub:
-            await self._pending_hub.close()
+            try:
+                await self._pending_hub.close()
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                _LOGGER.debug(
+                    "Failed to close pending fnOS auth client: %s",
+                    exc,
+                )
         self._pending_hub = None
+        self._pending_user_input = None
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -151,7 +163,6 @@ class FnosConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         if user_input is not None:
             await self._clear_pending_hub()
-            self._pending_user_input = None
 
             hub = FnosHub(user_input[CONF_HOST])
             result = await hub.login(

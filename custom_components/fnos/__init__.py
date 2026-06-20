@@ -60,7 +60,12 @@ async def async_setup_entry(
         entry.data.get(CONF_USERNAME),
         entry.data.get(CONF_PASSWORD)
     )
-    _LOGGER.debug("登录结果: %s", result)
+    _LOGGER.debug(
+        "fnOS login completed with result=%s twofa_required=%s twofa_setup_required=%s",
+        result.get("result"),
+        result.get("twofaRequired"),
+        result.get("twofaSetupRequired"),
+    )
 
     system_coordinator = FnosSystemCoordinator(hass, entry, client)
     disk_coordinator = FnosDiskCoordinator(hass, entry, client)

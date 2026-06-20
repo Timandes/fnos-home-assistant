@@ -68,3 +68,8 @@ def classify_twofa_response(response: dict[str, Any]) -> AuthResult:
 def is_valid_twofa_code(code: str) -> bool:
     """Return True when the code is exactly six digits."""
     return re.fullmatch(r"\d{6}", code) is not None
+
+
+def is_connection_error(exc: Exception) -> bool:
+    """Return True when an exception represents a connection-level failure."""
+    return isinstance(exc, (ConnectionError, TimeoutError, OSError))

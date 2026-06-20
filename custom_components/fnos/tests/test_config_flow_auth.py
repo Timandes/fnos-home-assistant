@@ -1,6 +1,7 @@
 """Tests for fnOS config flow authentication helpers."""
 
 from pathlib import Path
+import ast
 import importlib.util
 import json
 import sys
@@ -114,8 +115,46 @@ class AuthHelperTests(unittest.TestCase):
 
         self.assertIn("async def async_step_twofa", text)
         self.assertIn("STEP_TWOFA_DATA_SCHEMA", text)
-        self.assertIn("submit_twofa_code(code)", text)
-        self.assertIn("trust_device=True", text)
+
+        tree = ast.parse(text)
+        matching_calls = [
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "submit_twofa_code"
+        ]
+
+        self.assertTrue(matching_calls)
+        self.assertTrue(
+            any(
+                any(
+                    keyword.arg == "trust_device"
+                    and isinstance(keyword.value, ast.Constant)
+                    and keyword.value.value is True
+                    for keyword in call.keywords
+                )
+                for call in matching_calls
+            )
+        )
+
+    def test_connection_errors_are_classified_as_cannot_connect(self):
+        for exc in (
+            ConnectionError("connection failed"),
+            TimeoutError("timeout"),
+            OSError("socket closed"),
+        ):
+            with self.subTest(exc=type(exc).__name__):
+                self.assertTrue(self.auth.is_connection_error(exc))
+
+        self.assertFalse(self.auth.is_connection_error(RuntimeError("bad response")))
+
+    def test_config_flow_cleanup_is_best_effort_and_clears_pending_input(self):
+        text = CONFIG_FLOW_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("except Exception as exc", text)
+        self.assertIn("Failed to close pending fnOS auth client", text)
+        self.assertIn("self._pending_user_input = None", text)
 
     def test_manifest_requires_pyfnos_0130(self):
         manifest_path = ROOT / "custom_components" / "fnos" / "manifest.json"
