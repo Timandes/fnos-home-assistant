@@ -48,6 +48,14 @@ cd fnos-home-assistant
 
 [![打开您的 Home Assistant 实例并开始配置一个新的飞牛fnOS集成实例。](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=fnos)
 
+### 双重验证（2FA）
+
+从集成依赖 `fnos>=0.13.0` 开始，配置流程支持已绑定双重验证的 fnOS 账号。输入用户名和密码后，如果 fnOS 要求双重验证，Home Assistant 会继续提示输入身份验证器应用中的 6 位验证码。
+
+提交验证码时，集成会请求 fnOS 信任当前 Home Assistant 设备，以减少后续验证码要求。是否后续免验证码由 fnOS 服务端决定。
+
+如果 fnOS 提示该账号被要求启用双重验证但尚未绑定验证器，请先在 fnOS Web 端完成双重验证设置，再回到 Home Assistant 添加集成。
+
 ### 多NAS登录
 
 用一个载有飞牛fnOS的NAS中的管理员帐号登录并配置完成后，您可以在 fnOS Integration 页面中继续添加其他NAS的帐号。
@@ -87,4 +95,3 @@ cd fnos-home-assistant
 | **Below min remaining life** | 着重检查硬盘的损耗是否还在可控范围内。根据硬盘类型及日常运维经验采用不同算法：<br>• **普通 HDD**：检查 S.M.A.R.T. 属性 ID=5（重映射扇区计数）的 `raw.value` 是否大于0。如果 `raw.value > 0`，则触发告警。<br>• **NVMe SSD**：检查 `percentage_used`（已用寿命百分比）是否高于50。如果 `percentage_used >= 50`，则触发告警。<br>• **SAS HDD**：检查 `smart.scsi_grown_defect_list` 是否大于0。如果 `smart.scsi_grown_defect_list > 0`，则触发告警。 |
 | **Exceeded max bad sectors** | 根据硬盘类型采用不同算法：<br>• **普通 HDD**：检查 S.M.A.R.T. 属性 ID=5（重映射扇区计数）的 `value` 是否低于 `thresh`（阈值）。如果 `value < thresh`，则触发告警。<br>• **NVMe SSD**：检查 `available_spare`（可用备用空间）是否低于 `available_spare_threshold`（可用备用空间阈值）。如果 `available_spare < available_spare_threshold`，则触发告警。<br>• **SAS HDD**：检查 `smart.scsi_grown_defect_list` 是否大于0。如果 `smart.scsi_grown_defect_list > 0`，则触发告警（此行为存疑，待确认）。 |
 | **Reallocated sector/Retired block/Grown Defect count** | 提取 S.M.A.R.T. 属性 ID=5（重映射扇区计数）的 `raw.value` 字段，显示硬盘的重映射扇区数量（对于 SSD 则为已退役块数量）。该数值越大，表示硬盘健康状况越差。如果硬盘不支持或没有此属性（例如某些 NVMe SSD），则返回 `-1`。 |
-
