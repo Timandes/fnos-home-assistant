@@ -15,7 +15,12 @@ from homeassistant.config_entries import (
     OptionsFlow,
     SOURCE_REAUTH,
 )
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_NAME
+from homeassistant.const import (
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_USERNAME,
+    CONF_NAME,
+)
 from homeassistant.core import callback
 
 from .auth import (
@@ -73,7 +78,11 @@ class FnosHub:
             self._client = FnosClient()
             await self._client.connect(self.host)
         except Exception as exc:  # pylint: disable=broad-exception-caught
-            _LOGGER.warning("Cannot connect to fnOS host %s: %s", self.host, exc)
+            _LOGGER.warning(
+                "Cannot connect to fnOS host %s: %s",
+                self.host,
+                exc,
+            )
             return AuthResult(AuthStatus.CANNOT_CONNECT)
 
         try:
@@ -211,7 +220,7 @@ class FnosConfigFlow(ConfigFlow, domain=DOMAIN):
         self._pending_user_input = None
 
     async def _restart_twofa_challenge(self) -> AuthResult:
-        """Rebuild a pending 2FA challenge after the temporary connection closed."""
+        """Rebuild a pending 2FA challenge after connection close."""
         if self._pending_user_input is None:
             return AuthResult(AuthStatus.CANNOT_CONNECT)
 
@@ -240,7 +249,7 @@ class FnosConfigFlow(ConfigFlow, domain=DOMAIN):
         return result
 
     async def _submit_twofa_code_with_reconnect(self, code: str) -> AuthResult:
-        """Submit a 2FA code, rebuilding the challenge if the connection expired."""
+        """Submit a 2FA code, rebuilding expired challenge state."""
         if self._pending_hub is None:
             return AuthResult(AuthStatus.CANNOT_CONNECT)
 
@@ -413,7 +422,9 @@ class FnosConfigFlow(ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry: ConfigEntry) -> FnosOptionsFlow:  # pylint: disable=unused-argument
+    def async_get_options_flow(  # pylint: disable=unused-argument
+        config_entry: ConfigEntry,
+    ) -> FnosOptionsFlow:
         """Get the options flow for this handler."""
         return FnosOptionsFlow()
 

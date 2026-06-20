@@ -27,7 +27,8 @@ class LoggingPolicyTests(unittest.TestCase):
                 and isinstance(func.value, ast.Name)
                 and func.value.id == "_LOGGER"
                 and isinstance(func.attr, str)
-                and func.attr in {"debug", "info", "warning", "error", "critical"}
+                and func.attr
+                in {"debug", "info", "warning", "error", "critical"}
             ):
                 continue
 
@@ -39,18 +40,39 @@ class LoggingPolicyTests(unittest.TestCase):
             ):
                 yield func.attr, node.args[0].value
 
-    def _assert_no_call_level(self, text: str, message: str, disallowed_level: str):
+    def _assert_no_call_level(
+        self,
+        text: str,
+        message: str,
+        disallowed_level: str,
+    ):
         calls = list(self._logger_calls(text))
         self.assertIsNone(
-            next((call for call in calls if call[0] == disallowed_level and message in call[1]), None),
-            f"message '{message}' should not be logged with _LOGGER.{disallowed_level}()"
+            next(
+                (
+                    call
+                    for call in calls
+                    if call[0] == disallowed_level and message in call[1]
+                ),
+                None,
+            ),
+            f"message '{message}' should not be logged with "
+            f"_LOGGER.{disallowed_level}()",
         )
 
     def _assert_call_level(self, text: str, message: str, required_level: str):
         calls = list(self._logger_calls(text))
         self.assertIsNotNone(
-            next((call for call in calls if call[0] == required_level and message in call[1]), None),
-            f"message '{message}' should be logged with _LOGGER.{required_level}()"
+            next(
+                (
+                    call
+                    for call in calls
+                    if call[0] == required_level and message in call[1]
+                ),
+                None,
+            ),
+            f"message '{message}' should be logged with "
+            f"_LOGGER.{required_level}()",
         )
 
     def test_init_entry_logs_use_debug_and_no_print(self):
@@ -62,7 +84,9 @@ class LoggingPolicyTests(unittest.TestCase):
         self._assert_call_level(text, "fnos.async_setup_entry called", "debug")
         self._assert_call_level(text, "fnos.async_unload_entry called", "debug")
 
-    def test_coordinator_logs_are_debug_and_no_warning_or_info_payload_dump(self):
+    def test_coordinator_logs_are_debug_and_no_warning_or_info_payload_dump(
+        self,
+    ):
         text = self._read("coordinator.py")
 
         for msg in (

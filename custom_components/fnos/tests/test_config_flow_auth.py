@@ -16,7 +16,10 @@ INIT_PATH = ROOT / "custom_components" / "fnos" / "__init__.py"
 
 def load_auth_module():
     """Load auth.py without importing the Home Assistant integration package."""
-    spec = importlib.util.spec_from_file_location("fnos_auth_under_test", AUTH_PATH)
+    spec = importlib.util.spec_from_file_location(
+        "fnos_auth_under_test",
+        AUTH_PATH,
+    )
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
     sys.modules[spec.name] = module
@@ -58,7 +61,10 @@ class AuthHelperTests(unittest.TestCase):
             }
         )
 
-        self.assertEqual(result.status, self.auth.AuthStatus.TWOFA_SETUP_REQUIRED)
+        self.assertEqual(
+            result.status,
+            self.auth.AuthStatus.TWOFA_SETUP_REQUIRED,
+        )
 
     def test_classifies_failed_login_as_invalid_auth(self):
         result = self.auth.classify_login_response(
@@ -94,8 +100,14 @@ class AuthHelperTests(unittest.TestCase):
         self.assertFalse(self.auth.is_valid_twofa_code(""))
 
     def test_auth_status_values_match_config_flow_error_keys(self):
-        self.assertEqual(self.auth.AuthStatus.CANNOT_CONNECT.value, "cannot_connect")
-        self.assertEqual(self.auth.AuthStatus.INVALID_AUTH.value, "invalid_auth")
+        self.assertEqual(
+            self.auth.AuthStatus.CANNOT_CONNECT.value,
+            "cannot_connect",
+        )
+        self.assertEqual(
+            self.auth.AuthStatus.INVALID_AUTH.value,
+            "invalid_auth",
+        )
         self.assertEqual(
             self.auth.AuthStatus.INVALID_TWOFA_CODE.value,
             "invalid_twofa_code",
@@ -190,7 +202,9 @@ class AuthHelperTests(unittest.TestCase):
             with self.subTest(exc=type(exc).__name__):
                 self.assertTrue(self.auth.is_connection_error(exc))
 
-        self.assertFalse(self.auth.is_connection_error(RuntimeError("bad response")))
+        self.assertFalse(
+            self.auth.is_connection_error(RuntimeError("bad response"))
+        )
 
     def test_twofa_submission_rebuilds_challenge_after_disconnect(self):
         text = CONFIG_FLOW_PATH.read_text(encoding="utf-8")
@@ -215,7 +229,11 @@ class AuthHelperTests(unittest.TestCase):
     def test_translation_files_include_twofa_step_and_errors(self):
         translation_paths = [
             ROOT / "custom_components" / "fnos" / "strings.json",
-            ROOT / "custom_components" / "fnos" / "translations" / "zh-Hans.json",
+            ROOT
+            / "custom_components"
+            / "fnos"
+            / "translations"
+            / "zh-Hans.json",
             ROOT / "custom_components" / "fnos" / "translations" / "en.json",
         ]
 

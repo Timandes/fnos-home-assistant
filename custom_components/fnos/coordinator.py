@@ -54,7 +54,10 @@ class FnosSystemCoordinator(DataUpdateCoordinator):
 
         Called automatically during async_config_entry_first_refresh.
         """
-        _LOGGER.debug("[%s] system coordinator _async_setup called", self.config_entry.title)
+        _LOGGER.debug(
+            "[%s] system coordinator _async_setup called",
+            self.config_entry.title,
+        )
 
         self.data = await self._async_update_data()
 
@@ -90,7 +93,10 @@ class FnosSystemCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         """Fetch system-level data from fnOS API."""
-        _LOGGER.debug("[%s] system coordinator _async_update_data called", self.config_entry.title)
+        _LOGGER.debug(
+            "[%s] system coordinator _async_update_data called",
+            self.config_entry.title,
+        )
         _LOGGER.debug("[%s] system coordinator update", self.config_entry.title)
 
         try:
@@ -160,7 +166,10 @@ class FnosDiskCoordinator(DataUpdateCoordinator):
 
     async def _async_setup(self):
         """Set up the disk coordinator."""
-        _LOGGER.debug("[%s] disk coordinator _async_setup called", self.config_entry.title)
+        _LOGGER.debug(
+            "[%s] disk coordinator _async_setup called",
+            self.config_entry.title,
+        )
         self.data = await self._async_update_data()
 
     async def async_setup(self):
@@ -169,7 +178,10 @@ class FnosDiskCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         """Fetch disk/storage data from fnOS API."""
-        _LOGGER.debug("[%s] disk coordinator _async_update_data called", self.config_entry.title)
+        _LOGGER.debug(
+            "[%s] disk coordinator _async_update_data called",
+            self.config_entry.title,
+        )
         _LOGGER.debug("[%s] disk coordinator update", self.config_entry.title)
 
         try:

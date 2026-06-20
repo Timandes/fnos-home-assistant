@@ -6,7 +6,12 @@ import logging
 from dataclasses import dataclass
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, Platform
+from homeassistant.const import (
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_USERNAME,
+    Platform,
+)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
@@ -55,7 +60,11 @@ def _stored_auth_data_from_client(client: FnosClient) -> dict[str, str]:
     token = getattr(client, "token", None)
     long_token = getattr(client, "long_token", None)
     get_secret = getattr(client, "get_decrypted_secret", None)
-    secret = get_secret() if get_secret else getattr(client, "decrypted_secret", None)
+    secret = (
+        get_secret()
+        if get_secret
+        else getattr(client, "decrypted_secret", None)
+    )
 
     if token:
         data[CONF_AUTH_TOKEN] = token
@@ -69,7 +78,9 @@ def _stored_auth_data_from_client(client: FnosClient) -> dict[str, str]:
 
 def _client_has_final_auth_data(client: FnosClient) -> bool:
     """Return whether pyfnos has enough auth data for API requests."""
-    return bool(_stored_auth_data_from_client(client).get(CONF_DECRYPTED_SECRET))
+    return bool(
+        _stored_auth_data_from_client(client).get(CONF_DECRYPTED_SECRET)
+    )
 
 
 def _token_login_succeeded(response: dict | None) -> bool:
@@ -117,16 +128,20 @@ async def _async_login_client(
             if is_connection_error(exc):
                 raise ConfigEntryNotReady("Cannot connect to fnOS") from exc
             _LOGGER.debug(
-                "Stored fnOS session refresh failed; falling back to password login: %s",
+                "Stored fnOS session refresh failed; "
+                "falling back to password login: %s",
                 exc,
             )
         else:
-            if _token_login_succeeded(response) and _client_has_final_auth_data(client):
+            if _token_login_succeeded(response) and _client_has_final_auth_data(
+                client
+            ):
                 await _async_update_stored_auth(hass, entry, client)
                 return
 
             _LOGGER.debug(
-                "Stored fnOS session refresh did not produce an authenticated state"
+                "Stored fnOS session refresh did not produce "
+                "an authenticated state"
             )
 
     try:
@@ -140,7 +155,8 @@ async def _async_login_client(
         raise ConfigEntryNotReady("fnOS login failed") from exc
 
     _LOGGER.debug(
-        "fnOS login completed with result=%s twofa_required=%s twofa_setup_required=%s",
+        "fnOS login completed with result=%s twofa_required=%s "
+        "twofa_setup_required=%s",
         result.get("result"),
         result.get("twofaRequired"),
         result.get("twofaSetupRequired"),
@@ -149,7 +165,9 @@ async def _async_login_client(
     auth_result = classify_login_response(result)
     if auth_result.status == AuthStatus.SUCCESS:
         if not _client_has_final_auth_data(client):
-            raise ConfigEntryNotReady("fnOS login did not produce final auth data")
+            raise ConfigEntryNotReady(
+                "fnOS login did not produce final auth data"
+            )
         await _async_update_stored_auth(hass, entry, client)
         return
 
@@ -182,7 +200,7 @@ def _install_reconnect_handler(
     entry: FnosConfigEntry,
     client: FnosClient,
 ) -> None:
-    """Install a reconnect handler that understands stored fnOS auth material."""
+    """Install a reconnect handler for stored fnOS auth material."""
 
     async def reconnect(
         connect_timeout: float = 3.0,  # pylint: disable=unused-argument

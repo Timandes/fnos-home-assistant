@@ -402,7 +402,9 @@ class FnosSensorEntity(CoordinatorEntity[FnosSystemCoordinator], SensorEntity):
         return self.coordinator.last_update_success
 
 
-class FnosVolumeSensorEntity(CoordinatorEntity[FnosDiskCoordinator], SensorEntity):
+class FnosVolumeSensorEntity(
+    CoordinatorEntity[FnosDiskCoordinator], SensorEntity
+):
     """Representation of a volume sensor in fnOS."""
 
     entity_description: FnosSensorEntityDescription
@@ -452,7 +454,9 @@ class FnosVolumeSensorEntity(CoordinatorEntity[FnosDiskCoordinator], SensorEntit
         return self.coordinator.last_update_success
 
 
-class FnosDiskSensorEntity(CoordinatorEntity[FnosDiskCoordinator], SensorEntity):
+class FnosDiskSensorEntity(
+    CoordinatorEntity[FnosDiskCoordinator], SensorEntity
+):
     """Representation of a disk sensor in fnOS."""
 
     entity_description: FnosSensorEntityDescription
