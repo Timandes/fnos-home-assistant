@@ -5,6 +5,11 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 并且遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [Unreleased]
+### 新增
+- 新增对于HTTPS接入方式的说明文字
+
+
 ## [0.4.0] - 2026-06-20
 
 ### 新增
