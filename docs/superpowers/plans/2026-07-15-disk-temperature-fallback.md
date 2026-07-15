@@ -46,10 +46,15 @@ import unittest
 
 
 FNOS_ROOT = Path(__file__).resolve().parents[1]
-TEMPERATURE_MODULE = runpy.run_path(
-    str(FNOS_ROOT / "disk_temperature.py")
-)
-extract_disk_temperature = TEMPERATURE_MODULE["extract_disk_temperature"]
+TEMPERATURE_MODULE_PATH = FNOS_ROOT / "disk_temperature.py"
+if TEMPERATURE_MODULE_PATH.exists():
+    TEMPERATURE_MODULE = runpy.run_path(str(TEMPERATURE_MODULE_PATH))
+    extract_disk_temperature = TEMPERATURE_MODULE[
+        "extract_disk_temperature"
+    ]
+else:
+    def extract_disk_temperature(_data):
+        raise AssertionError("extract_disk_temperature is not implemented")
 
 
 class DiskTemperatureTests(unittest.TestCase):
@@ -150,7 +155,7 @@ uv run --python 3.12 --no-project python -m unittest discover \
   custom_components/fnos/tests -p 'test_disk_temperature.py'
 ```
 
-Expected: `ERROR` while importing `test_disk_temperature` with `FileNotFoundError` for `custom_components/fnos/disk_temperature.py`; no production code exists yet.
+Expected: `Ran 7 tests` and `FAILED (failures=7)`, with each failure reporting `extract_disk_temperature is not implemented`; the suite imports successfully and fails only because the production resolver does not exist yet.
 
 - [ ] **Step 3: Implement the minimal pure resolver**
 
