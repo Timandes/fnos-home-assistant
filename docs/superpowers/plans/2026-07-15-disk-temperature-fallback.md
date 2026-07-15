@@ -269,12 +269,9 @@ class DiskTemperatureSensorWiringTests(unittest.TestCase):
             (
                 node
                 for node in tree.body
-                if isinstance(node, ast.Assign)
-                and any(
-                    isinstance(target, ast.Name)
-                    and target.id == "STORAGE_DISK_SENSORS"
-                    for target in node.targets
-                )
+                if isinstance(node, ast.AnnAssign)
+                and isinstance(node.target, ast.Name)
+                and node.target.id == "STORAGE_DISK_SENSORS"
             ),
             None,
         )
