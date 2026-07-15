@@ -6,6 +6,9 @@
 并且遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
 ## [Unreleased]
+
+## [0.4.1] - 2026-07-15
+
 ### 新增
 - 新增对于HTTPS接入方式的说明文字
 
