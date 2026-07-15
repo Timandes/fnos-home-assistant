@@ -15,7 +15,7 @@ if TEMPERATURE_MODULE_PATH.exists():
         "extract_disk_temperature"
     ]
 else:
-    def extract_disk_temperature(_data):
+    def extract_disk_temperature(ignored_data):
         raise AssertionError("extract_disk_temperature is not implemented")
 
 
