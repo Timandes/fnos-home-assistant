@@ -1,5 +1,6 @@
 """Disk temperature resolution tests."""
 
+import ast
 import math
 from pathlib import Path
 import runpy
@@ -101,6 +102,63 @@ class DiskTemperatureTests(unittest.TestCase):
         for data in cases:
             with self.subTest(data=data):
                 self.assertIsNone(extract_disk_temperature(data))
+
+
+class DiskTemperatureSensorWiringTests(unittest.TestCase):
+    """Verify the Home Assistant sensor delegates to the pure resolver."""
+
+    def test_disk_temperature_sensor_uses_resolver(self):
+        source = (FNOS_ROOT / "sensor.py").read_text(encoding="utf-8")
+        tree = ast.parse(source)
+
+        imports_resolver = any(
+            isinstance(node, ast.ImportFrom)
+            and node.level == 1
+            and node.module == "disk_temperature"
+            and any(
+                alias.name == "extract_disk_temperature"
+                for alias in node.names
+            )
+            for node in tree.body
+        )
+        self.assertTrue(
+            imports_resolver,
+            "sensor.py must import extract_disk_temperature",
+        )
+
+        storage_assignment = next(
+            (
+                node
+                for node in tree.body
+                if isinstance(node, ast.AnnAssign)
+                and isinstance(node.target, ast.Name)
+                and node.target.id == "STORAGE_DISK_SENSORS"
+            ),
+            None,
+        )
+        self.assertIsNotNone(storage_assignment)
+
+        disk_temp_keywords = None
+        for node in ast.walk(storage_assignment.value):
+            if not isinstance(node, ast.Call):
+                continue
+            keywords = {
+                keyword.arg: keyword.value
+                for keyword in node.keywords
+                if keyword.arg is not None
+            }
+            key = keywords.get("key")
+            if isinstance(key, ast.Constant) and key.value == "disk_temp":
+                disk_temp_keywords = keywords
+                break
+
+        self.assertIsNotNone(disk_temp_keywords)
+        value_fn = disk_temp_keywords.get("value_fn")
+        self.assertIsInstance(value_fn, ast.Lambda)
+        self.assertEqual(
+            "extract_disk_temperature(data)",
+            ast.unparse(value_fn.body),
+        )
 
 
 if __name__ == "__main__":

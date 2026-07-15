@@ -35,6 +35,7 @@ from .const import (
 )
 from . import FnosData
 from .coordinator import FnosSystemCoordinator, FnosDiskCoordinator
+from .disk_temperature import extract_disk_temperature
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -269,9 +270,7 @@ STORAGE_DISK_SENSORS: tuple[FnosSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda entity, data: (
-            data.get("resmon").get("temp")
-        )
+        value_fn=lambda entity, data: extract_disk_temperature(data)
     ),
 )
 
