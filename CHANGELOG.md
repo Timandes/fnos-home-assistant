@@ -7,6 +7,9 @@
 
 ## [Unreleased]
 
+### 新增
+- 新增本地品牌图标和 Logo（含双倍分辨率版本），供 Home Assistant 2026.3 及更新版本使用（[#6](https://github.com/Timandes/fnos-home-assistant/pull/6)，感谢 [@frenck](https://github.com/frenck)）
+
 ## [0.4.1] - 2026-07-15
 
 ### 新增
